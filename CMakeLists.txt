@@ -6,6 +6,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Find nlohmann/json
+find_package(nlohmann_json 3.2.0 REQUIRED)
+
 # Compiler flags
 set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall -Wextra -DDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
@@ -32,6 +35,8 @@ add_executable(network_simulator main.cpp)
 
 # Link libraries
 target_link_libraries(network_simulator models application)
+# Link nlohmann_json
+target_link_libraries(network_simulator models application nlohmann_json::nlohmann_json)
 
 # Set output directories
 set_target_properties(network_simulator PROPERTIES
