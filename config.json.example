@@ -1,0 +1,14 @@
+{
+	"total_cycle": 0,
+	"nodes":[
+		{
+			"node_address": 0,
+			"neighbords": [
+				{
+					"neighbor_address": 0,
+					"bandwidth": 0
+				}
+			]
+		}
+	]
+}
