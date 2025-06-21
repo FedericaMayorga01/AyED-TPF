@@ -2,12 +2,21 @@
 #include "../include/Package.hpp"
 #include "../include/Page.hpp"
 #include <iostream>
+#include <boost/circular_buffer.hpp>
 
-Router::Router(int routerAddress, std::map<int, int> routingTable)
+Router::Router(int routerAddress, std::map<int, int> routingTable, int queueSize, int packageQuantity)
 {
+    this->packageQuantity = packageQuantity;
     this->routerAddress = routerAddress;
     this->routingTable = routingTable;
     this->amIEndNode = false; // TODO: check if in routing table there is an terminal address
+
+    // Initialize package queues for each neighbor
+    for (const auto &entry : routingTable)
+    {
+        int neighborAddress = entry.first;
+        packageQueuesByNeighbor[neighborAddress] = boost::circular_buffer<Package>(queueSize);
+    }
 }
 
 int Router::getRouterAddress() const
@@ -20,15 +29,15 @@ bool Router::getAmIEndNode() const
     return amIEndNode;
 }
 
-std::queue<Package> Router::splitPage(const Page &page)
+std::list<Package> Router::splitPage(const Page page)
 {
     // This method should split a page into packages
     // for now it returns an empty queue
-    std::queue<Package> emptyPackageQueue;
-    return emptyPackageQueue;
+    std::list<Package> emptyPackageList;
+    return emptyPackageList;
 }
 
-void Router::sendPackage(int destAddress, const Package &package)
+void Router::sendPackage(int destAddress, const Package package)
 {
     // This method should send a package to the specified destination address
 }
@@ -41,6 +50,28 @@ void Router::processQueues()
 void Router::updateRoutingTable(std::map<int, int> newRoutingTable)
 {
     // This method should update the routing table with the new routing information
+}
+
+bool Router::hasQueueFreeSpaceForPkg(int neighborAddress) const
+{
+    auto it = packageQueuesByNeighbor.find(neighborAddress);
+    if (it != packageQueuesByNeighbor.end())
+    {
+        return it->second.size() < it->second.capacity();
+    }
+    return false;
+}
+
+bool Router::hasQueueFreeSpaceForPage(int neighborAddress, int pageSize) const
+{
+    auto it = packageQueuesByNeighbor.find(neighborAddress);
+    int nPackages = pageSize / packageQuantity; // Assuming pageSize is divisible by packageQuantity
+
+    if (it != packageQueuesByNeighbor.end())
+    {
+        return (it->second.size() + nPackages) <= it->second.capacity();
+    }
+    return false;
 }
 
 Page Router::rebuildPage()

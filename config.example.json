@@ -1,5 +1,7 @@
 {
 	"total_cycle": 0,
+	"queue_size": 0,
+	"package_quantity": 0,
 	"nodes":[
 		{
 			"node_address": 0,

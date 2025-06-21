@@ -21,6 +21,7 @@ endif()
 # Include directories
 include_directories(models/include)
 include_directories(application/include)
+include_directories(${Boost_INCLUDE_DIRS})
 
 # Models library
 file(GLOB MODELS_SOURCES "models/src/*.cpp")
@@ -36,7 +37,7 @@ add_executable(network_simulator main.cpp)
 # Link libraries
 target_link_libraries(network_simulator models application)
 # Link nlohmann_json
-target_link_libraries(network_simulator models application nlohmann_json::nlohmann_json)
+target_link_libraries(network_simulator models application nlohmann_json::nlohmann_json ${Boost_LIBRARIES})
 
 # Set output directories
 set_target_properties(network_simulator PROPERTIES

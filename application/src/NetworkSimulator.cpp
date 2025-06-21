@@ -13,6 +13,8 @@ void NetworkSimulator::loadConfiguration(const std::string& configFile) {
         config = ConfigParser::parseConfig(configFile);
         std::cout << "Configuration loaded successfully" << std::endl;
         std::cout << "Total cycles: " << config.total_cycle << std::endl;
+        std::cout << "Queue size: " << config.queue_size << std::endl; 
+        std::cout << "Package quantity: " << config.package_quantity << std::endl;
         std::cout << "Number of nodes: " << config.nodes.size() << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error loading configuration: " << e.what() << std::endl;
@@ -41,7 +43,7 @@ void NetworkSimulator::initializeNetwork() {
     // Initialize routers
     for (int address : routerAddresses) {
         std::map<int, int> initialRoutingTable;
-        Router router(address, initialRoutingTable);
+        Router router(address, initialRoutingTable, config.queue_size, config.package_quantity);
         routers.push_back(router);
         
         std::cout << "Created router with address: " << address 
