@@ -3,10 +3,11 @@
 #include "../include/Page.hpp"
 #include <iostream>
 #include <boost/circular_buffer.hpp>
+#include <cmath>
 
-Router::Router(int routerAddress, std::map<int, int> routingTable, int queueSize, int packageQuantity)
+Router::Router(int routerAddress, std::map<int, int> routingTable, int queueSize, int packageSize)
 {
-    this->packageQuantity = packageQuantity;
+    this->packageSize = packageSize;
     this->routerAddress = routerAddress;
     this->routingTable = routingTable;
     this->amIEndNode = false; // TODO: check if in routing table there is an terminal address
@@ -65,7 +66,7 @@ bool Router::hasQueueFreeSpaceForPkg(int neighborAddress) const
 bool Router::hasQueueFreeSpaceForPage(int neighborAddress, int pageSize) const
 {
     auto it = packageQueuesByNeighbor.find(neighborAddress);
-    int nPackages = pageSize / packageQuantity; // Assuming pageSize is divisible by packageQuantity
+    int nPackages = std::ceil(static_cast<float>(pageSize) / packageSize);
 
     if (it != packageQueuesByNeighbor.end())
     {

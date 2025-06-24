@@ -16,14 +16,14 @@ class Router
 {
 private:
     int routerAddress;
-    int packageQuantity;                                         // Number of packages to divade a page into
+    int packageSize;                                         // Number of packages to divade a page into
     std::map<int, boost::circular_buffer<Package>> packageQueuesByNeighbor; // Maps neighbor address to its package queue
     std::map<int, int> routingTable;                                        // Maps destination address to next hop address
     std::map<int, std::list<Package>> pendingPackagesByPageId;              // Maps page ID to a list of packages that are pending for that page
     bool amIEndNode;
 
 public:
-    Router(int routerAddress, std::map<int, int> routingTable, int queueSize, int packageQuantity);
+    Router(int routerAddress, std::map<int, int> routingTable, int queueSize, int packageSize);
 
     // Getters
     int getRouterAddress() const;

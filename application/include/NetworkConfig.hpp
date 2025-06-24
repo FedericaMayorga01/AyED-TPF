@@ -18,7 +18,7 @@ struct NodeConfig {
 struct NetworkConfig {
     int total_cycle;
     int queue_size;
-    int package_quantity;
+    int package_size;
     std::vector<NodeConfig> nodes;
 };
 
@@ -64,7 +64,7 @@ public:
 // JSON serialization support
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(NeighborConfig, neighbor_address, bandwidth)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(NodeConfig, node_address, neighbors)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(NetworkConfig, total_cycle, queue_size, nodes, package_quantity)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(NetworkConfig, total_cycle, queue_size, nodes, package_size)
 
 class ConfigParser {
 public:
