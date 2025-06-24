@@ -30,6 +30,31 @@ bool Router::getAmIEndNode() const
     return amIEndNode;
 }
 
+void Router::receivePage(Page page)
+{
+    if (hasQueueFreeSpaceForPage(page.getOrigTerminalAddress(), page.getSizePage()))
+    {
+        std::cout << "Router " << routerAddress << " received page with ID " << page.getIdPage()
+                  << " from terminal " << page.getOrigTerminalAddress() << std::endl;
+    }
+    else
+    {
+        std::cout << "Router " << routerAddress << " has no free space for page with ID "
+                  << page.getIdPage() << " from terminal " << page.getOrigTerminalAddress() << std::endl;
+        return; // No space to process this page
+    }
+
+    // This method should receive a page and split it into packages
+    std::list<Package> packages = splitPage(page);
+
+    // Store the packages in the packageQueuesByNeighbor map
+    boost::circular_buffer queue = packageQueuesByNeighbor[page.getOrigTerminalAddress()];
+    for (const Package &pkg : packages)
+    {
+        queue.push_back(pkg);
+    }
+}
+
 std::list<Package> Router::splitPage(const Page page)
 {
     // This method should split a page into packages

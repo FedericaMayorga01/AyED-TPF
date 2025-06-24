@@ -1,11 +1,21 @@
 #include "../include/NetworkSimulator.hpp"
 #include <iostream>
 #include <stdexcept>
+#include <vector>
 
 NetworkSimulator::NetworkSimulator(const std::string& configFile) {
     loadConfiguration(configFile);
     initializeNetwork();
     setupAdministrator();
+}
+
+Router* NetworkSimulator::getRouterByAddress(int address) {
+    for (auto& router : routers) {
+        if (router.getRouterAddress() == address) {
+            return &router;
+        }
+    }
+    return nullptr; // Return nullptr if no router found with the given address
 }
 
 void NetworkSimulator::loadConfiguration(const std::string& configFile) {
@@ -55,13 +65,18 @@ void NetworkSimulator::initializeNetwork() {
         int terminalAddress = terminalConfig.node_address;
         int routerAddress = AddressUtils::getRouterAddressForTerminal(terminalAddress);
         
-        Terminal terminal(terminalAddress, routerAddress);
+        Terminal terminal(terminalAddress, routerAddress, this);
         terminals.push_back(terminal);
         
         std::cout << "Created terminal " << terminalAddress 
                  << " connected to router " << routerAddress << std::endl;
     }
 
+    for (Terminal terminal : terminals)
+    {
+        terminal.setTerminalNodes(terminals);
+    }
+    
     // Initialize links
     for (const auto& nodeConfig : config.nodes) {
         for (const auto& neighbor : nodeConfig.neighbors) {

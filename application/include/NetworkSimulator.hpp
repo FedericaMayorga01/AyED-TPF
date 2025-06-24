@@ -23,7 +23,7 @@ private:
 
 public:
     NetworkSimulator(const std::string& configFile);
-    
+    Router* getRouterByAddress(int address);
     void loadConfiguration(const std::string& configFile);
     void initializeNetwork();
     void initializeTerminals();

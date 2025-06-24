@@ -30,6 +30,7 @@ public:
     bool getAmIEndNode() const;
 
     // Methods
+    void receivePage(Page page);
     std::list<Package> splitPage(const Page page);
     void sendPackage(int destAddress, const Package package);
     void processQueues();
