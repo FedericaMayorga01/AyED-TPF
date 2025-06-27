@@ -1,6 +1,7 @@
 #include "../include/Router.hpp"
 #include "../include/Package.hpp"
 #include "../include/Page.hpp"
+#include "../include/NetworkConfig.hpp"
 #include <iostream>
 #include <boost/circular_buffer.hpp>
 #include <cmath>
@@ -10,13 +11,13 @@ Router::Router(int routerAddress, std::map<int, int> routingTable, int queueSize
     this->packageSize = packageSize;
     this->routerAddress = routerAddress;
     this->routingTable = routingTable;
-    this->amIEndNode = false; // TODO: check if in routing table there is an terminal address
 
     // Initialize package queues for each neighbor
     for (const auto &entry : routingTable)
     {
         int neighborAddress = entry.first;
         packageQueuesByNeighbor[neighborAddress] = boost::circular_buffer<Package*>(queueSize);
+        this->amIEndNode = AddressUtils::isTerminal(neighborAddress);
     }
 }
 
