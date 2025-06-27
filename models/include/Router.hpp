@@ -33,7 +33,7 @@ public:
 
     // Methods
     void receivePage(Page* page);
-    std::list<Package*> splitPage(const Page* page);
+    std::list<Package*> splitPage(Page* page);
     void sendPackage(int destAddress, Package* package);
     void receivePackage(Package* package);
     void processQueues();

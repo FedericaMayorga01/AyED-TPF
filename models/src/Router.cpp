@@ -59,12 +59,20 @@ void Router::receivePage(Page* page)
     }
 }
 
-std::list<Package*> Router::splitPage(const Page* page)
+std::list<Package*> Router::splitPage(Page* page)
 {
     // This method should split a page into packages
-    // for now it returns an empty queue
-    std::list<Package*> emptyPackageList;
-    return emptyPackageList;
+   int nPackages = std::ceil(static_cast<float>(page->getSizePage()) / packageSize);
+   std::list<Package*> packages;
+   for (int i = 0; i < nPackages; ++i)
+   {
+       int packageId = i; // Package IDs start from 1
+       Package* package = new Package(packageId, page->getIdPage(), packageSize,
+                                      page->getOrigTerminalAddress(), page->getDestTerminalAddress());
+       package->getRouteTaken().push_back(routerAddress); // Add current router to the route
+       packages.push_back(package);
+   }
+   return packages;
 }
 
 void Router::sendPackage(int destAddress, Package* package)
@@ -76,6 +84,7 @@ void Router::sendPackage(int destAddress, Package* package)
         throw std::invalid_argument("Router with address " + std::to_string(destAddress) + " not found.");
     }
 
+    package->getRouteTaken().push_back(destAddress);
     destRouter->receivePackage(package);
 }
 
