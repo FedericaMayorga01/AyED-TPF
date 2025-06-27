@@ -11,6 +11,7 @@
 // Forward declaration
 class Package;
 class Page;
+class NetworkSimulator;
 
 class Router
 {
@@ -21,9 +22,10 @@ private:
     std::map<int, int> routingTable;                                        // Maps destination address to next hop address
     std::map<int, std::list<Package*>> pendingPackagesByPageId;              // Maps page ID to a list of packages that are pending for that page
     bool amIEndNode;
+    NetworkSimulator* networkSimulator;
 
 public:
-    Router(int routerAddress, std::map<int, int> routingTable, int queueSize, int packageSize);
+    Router(int routerAddress, std::map<int, int> routingTable, int queueSize, int packageSize, NetworkSimulator* networkSimulator);
 
     // Getters
     int getRouterAddress() const;
@@ -32,7 +34,7 @@ public:
     // Methods
     void receivePage(Page* page);
     std::list<Package*> splitPage(const Page* page);
-    void sendPackage(int destAddress, const Package* package);
+    void sendPackage(int destAddress, Package* package);
     void receivePackage(Package* package);
     void processQueues();
     void updateRoutingTable(std::map<int, int> newRoutingTable);

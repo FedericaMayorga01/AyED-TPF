@@ -2,15 +2,18 @@
 #include "../include/Package.hpp"
 #include "../include/Page.hpp"
 #include "../include/NetworkConfig.hpp"
+#include "../include/NetworkSimulator.hpp"
 #include <iostream>
 #include <boost/circular_buffer.hpp>
 #include <cmath>
+#include <stdexcept>
 
-Router::Router(int routerAddress, std::map<int, int> routingTable, int queueSize, int packageSize)
+Router::Router(int routerAddress, std::map<int, int> routingTable, int queueSize, int packageSize, NetworkSimulator* networkSimulator)
 {
     this->packageSize = packageSize;
     this->routerAddress = routerAddress;
     this->routingTable = routingTable;
+    this->networkSimulator = networkSimulator;
 
     // Initialize package queues for each neighbor
     for (const auto &entry : routingTable)
@@ -64,9 +67,16 @@ std::list<Package*> Router::splitPage(const Page* page)
     return emptyPackageList;
 }
 
-void Router::sendPackage(int destAddress, const Package* package)
+void Router::sendPackage(int destAddress, Package* package)
 {
     // This method should send a package to the specified destination address
+    Router* destRouter = networkSimulator->getRouterByAddress(destAddress);
+    if (destRouter == NULL)
+    {
+        throw std::invalid_argument("Router with address " + std::to_string(destAddress) + " not found.");
+    }
+
+    destRouter->receivePackage(package);
 }
 
 void Router::receivePackage(Package* package)

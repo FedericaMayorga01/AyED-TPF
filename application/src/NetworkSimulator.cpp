@@ -53,7 +53,7 @@ void NetworkSimulator::initializeNetwork() {
     // Initialize routers
     for (int address : routerAddresses) {
         std::map<int, int> initialRoutingTable;
-        Router router(address, initialRoutingTable, config.queue_size, config.package_size);
+        Router router(address, initialRoutingTable, config.queue_size, config.package_size, this);
         routers.push_back(router);
         
         std::cout << "Created router with address: " << address 
