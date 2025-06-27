@@ -16,7 +16,7 @@ Router::Router(int routerAddress, std::map<int, int> routingTable, int queueSize
     for (const auto &entry : routingTable)
     {
         int neighborAddress = entry.first;
-        packageQueuesByNeighbor[neighborAddress] = boost::circular_buffer<Package>(queueSize);
+        packageQueuesByNeighbor[neighborAddress] = boost::circular_buffer<Package*>(queueSize);
     }
 }
 
@@ -30,42 +30,64 @@ bool Router::getAmIEndNode() const
     return amIEndNode;
 }
 
-void Router::receivePage(Page page)
+void Router::receivePage(Page* page)
 {
-    if (hasQueueFreeSpaceForPage(page.getOrigTerminalAddress(), page.getSizePage()))
+    if (hasQueueFreeSpaceForPage(page->getOrigTerminalAddress(), page->getSizePage()))
     {
-        std::cout << "Router " << routerAddress << " received page with ID " << page.getIdPage()
-                  << " from terminal " << page.getOrigTerminalAddress() << std::endl;
+        std::cout << "Router " << routerAddress << " received page with ID " << page->getIdPage()
+                  << " from terminal " << page->getOrigTerminalAddress() << std::endl;
     }
     else
     {
         std::cout << "Router " << routerAddress << " has no free space for page with ID "
-                  << page.getIdPage() << " from terminal " << page.getOrigTerminalAddress() << std::endl;
+                  << page->getIdPage() << " from terminal " << page->getOrigTerminalAddress() << std::endl;
         return; // No space to process this page
     }
 
     // This method should receive a page and split it into packages
-    std::list<Package> packages = splitPage(page);
+    std::list<Package*> packages = splitPage(page);
 
     // Store the packages in the packageQueuesByNeighbor map
-    boost::circular_buffer queue = packageQueuesByNeighbor[page.getOrigTerminalAddress()];
-    for (const Package &pkg : packages)
+    boost::circular_buffer queue = packageQueuesByNeighbor[page->getOrigTerminalAddress()];
+    for (Package* pkg : packages)
     {
         queue.push_back(pkg);
     }
 }
 
-std::list<Package> Router::splitPage(const Page page)
+std::list<Package*> Router::splitPage(const Page* page)
 {
     // This method should split a page into packages
     // for now it returns an empty queue
-    std::list<Package> emptyPackageList;
+    std::list<Package*> emptyPackageList;
     return emptyPackageList;
 }
 
-void Router::sendPackage(int destAddress, const Package package)
+void Router::sendPackage(int destAddress, const Package* package)
 {
     // This method should send a package to the specified destination address
+}
+
+void Router::receivePackage(Package* package)
+{
+    // This method should receive a package and process it
+    if (hasQueueFreeSpaceForPkg(this->routerAddress))
+    {
+        std::cout << "Router " << routerAddress << " received package with ID "
+                  << package->getIdPackage() << " from Router " 
+                  << package->getRouteTaken().back() << std::endl;
+    }
+    else
+    {
+        std::cout << "Router " << routerAddress << " has no free space for package with ID "
+                  << package->getIdPackage() << " from Router "
+                  << package->getRouteTaken().back() << std::endl;
+        return; // No space to process this package
+    }
+
+    // Add the package to the queue of the corresponding neighbor
+    boost::circular_buffer<Package*> queue = packageQueuesByNeighbor[package->getRouteTaken().back()];
+    queue.push_back(package);
 }
 
 void Router::processQueues()
@@ -100,11 +122,11 @@ bool Router::hasQueueFreeSpaceForPage(int neighborAddress, int pageSize) const
     return false;
 }
 
-Page Router::rebuildPage()
+Page* Router::rebuildPage()
 {
     // This method should rebuild a page from the pending packages
     // for now it returns an empty Page
-    Page emptyPage(0, 0, 0, 0);
+    Page* emptyPage = new Page(0, 0, 0, 0);
     return emptyPage;
 }
 

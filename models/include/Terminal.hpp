@@ -11,13 +11,12 @@ private:
     int routerAddress;
     NetworkSimulator* networkSimulator;
     std::vector<Terminal> terminalNodes;
-    Page generatePage(void);
+    Page* generatePage(void);
 
 public:
     Terminal(int terminalAddress, int routerAddress, NetworkSimulator* networkSimulator);
     int getTerminalAddress(void);
     int getRouterAddress(void);
-    std::vector<Terminal> getTerminalNodes();
     void setTerminalNodes(std::vector<Terminal> terminalNodes);
     void sendPage(void);
 };

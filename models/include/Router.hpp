@@ -17,9 +17,9 @@ class Router
 private:
     int routerAddress;
     int packageSize;                                         // Number of packages to divade a page into
-    std::map<int, boost::circular_buffer<Package>> packageQueuesByNeighbor; // Maps neighbor address to its package queue
+    std::map<int, boost::circular_buffer<Package*>> packageQueuesByNeighbor; // Maps neighbor address to its package queue
     std::map<int, int> routingTable;                                        // Maps destination address to next hop address
-    std::map<int, std::list<Package>> pendingPackagesByPageId;              // Maps page ID to a list of packages that are pending for that page
+    std::map<int, std::list<Package*>> pendingPackagesByPageId;              // Maps page ID to a list of packages that are pending for that page
     bool amIEndNode;
 
 public:
@@ -30,16 +30,17 @@ public:
     bool getAmIEndNode() const;
 
     // Methods
-    void receivePage(Page page);
-    std::list<Package> splitPage(const Page page);
-    void sendPackage(int destAddress, const Package package);
+    void receivePage(Page* page);
+    std::list<Package*> splitPage(const Page* page);
+    void sendPackage(int destAddress, const Package* package);
+    void receivePackage(Package* package);
     void processQueues();
     void updateRoutingTable(std::map<int, int> newRoutingTable);
     bool hasQueueFreeSpaceForPkg(int neighborAddress) const;
     bool hasQueueFreeSpaceForPage(int neighborAddress, int pageSize) const;
 
     // End node methods
-    Page rebuildPage();
+    Page* rebuildPage();
     void sendPage(int destTerminalAddress);
 };
 

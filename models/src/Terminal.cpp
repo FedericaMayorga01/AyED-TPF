@@ -19,11 +19,6 @@ int Terminal::getTerminalAddress() { return terminalAddress; }
 
 int Terminal::getRouterAddress() { return routerAddress; }
 
-std::vector<Terminal> Terminal::getTerminalNodes()
-{
-    return terminalNodes;
-}
-
 void Terminal::setTerminalNodes(std::vector<Terminal> terminalNodes)
 {
     this->terminalNodes = terminalNodes;
@@ -31,11 +26,11 @@ void Terminal::setTerminalNodes(std::vector<Terminal> terminalNodes)
 
 void Terminal::sendPage()
 {
-    Page page = generatePage();
+    Page* page = generatePage();
     std::cout << "Terminal " << terminalAddress
-              << " sending page with ID " << page.getIdPage()
-              << " of size " << page.getSizePage()
-              << " bytes to terminal " << page.getDestTerminalAddress()
+              << " sending page with ID " << page->getIdPage()
+              << " of size " << page->getSizePage()
+              << " bytes to terminal " << page->getDestTerminalAddress()
               << std::endl;
 
     Router *router = networkSimulator->getRouterByAddress(routerAddress);
@@ -43,7 +38,7 @@ void Terminal::sendPage()
     router->receivePage(page);
 }
 
-Page Terminal::generatePage()
+Page* Terminal::generatePage()
 {
     static int idPage = 0;
     int sizePage = std::rand() % 10240 + 256;
@@ -57,5 +52,5 @@ Page Terminal::generatePage()
         destTerminalAddress = terminalNodes[randomIndex].getTerminalAddress();
     }
 
-    return Page(idPage++, sizePage, terminalAddress, destTerminalAddress);
+    return new Page(idPage++, sizePage, terminalAddress, destTerminalAddress);
 }
