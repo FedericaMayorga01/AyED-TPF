@@ -1,15 +1,17 @@
 #include "../include/Router.hpp"
-#include "../include/Package.hpp"
-#include "../include/Page.hpp"
 #include "../include/NetworkConfig.hpp"
 #include "../include/NetworkSimulator.hpp"
-#include <iostream>
+#include "../include/Package.hpp"
+#include "../include/Page.hpp"
+#include <algorithm>
 #include <boost/circular_buffer.hpp>
 #include <cmath>
+#include <iostream>
+#include <set>
 #include <stdexcept>
-#include <algorithm>
 
-Router::Router(int routerAddress, std::map<int, int> routingTable, int queueSize, int packageSize, NetworkSimulator* networkSimulator)
+Router::Router(int routerAddress, std::map<int, int> routingTable, int queueSize, int packageSize,
+               NetworkSimulator* networkSimulator)
 {
     this->packageSize = packageSize;
     this->routerAddress = routerAddress;
@@ -17,7 +19,7 @@ Router::Router(int routerAddress, std::map<int, int> routingTable, int queueSize
     this->networkSimulator = networkSimulator;
 
     // Initialize package queues for each neighbor
-    for (const auto &entry : routingTable)
+    for (const auto& entry : routingTable)
     {
         int neighborAddress = entry.first;
         packageQueuesByNeighbor[neighborAddress] = boost::circular_buffer<Package*>(queueSize);
@@ -39,13 +41,13 @@ void Router::receivePage(Page* page)
 {
     if (hasQueueFreeSpaceForPage(page->getOrigTerminalAddress(), page->getSizePage()))
     {
-        std::cout << "Router " << routerAddress << " received page with ID " << page->getIdPage()
-                  << " from terminal " << page->getOrigTerminalAddress() << std::endl;
+        std::cout << "Router " << routerAddress << " received page with ID " << page->getIdPage() << " from terminal "
+                  << page->getOrigTerminalAddress() << std::endl;
     }
     else
     {
-        std::cout << "Router " << routerAddress << " has no free space for page with ID "
-                  << page->getIdPage() << " from terminal " << page->getOrigTerminalAddress() << std::endl;
+        std::cout << "Router " << routerAddress << " has no free space for page with ID " << page->getIdPage()
+                  << " from terminal " << page->getOrigTerminalAddress() << std::endl;
         return; // No space to process this page
     }
 
@@ -63,17 +65,17 @@ void Router::receivePage(Page* page)
 std::list<Package*> Router::splitPage(Page* page)
 {
     // This method should split a page into packages
-   int nPackages = std::ceil(static_cast<float>(page->getSizePage()) / packageSize);
-   std::list<Package*> packages;
-   for (int i = 0; i < nPackages; ++i)
-   {
-       int packageId = i; // Package IDs start from 1
-       Package* package = new Package(packageId, page->getIdPage(), packageSize,
-                                      page->getOrigTerminalAddress(), page->getDestTerminalAddress());
-       package->getRouteTaken().push_back(routerAddress); // Add current router to the route
-       packages.push_back(package);
-   }
-   return packages;
+    int numberOfPackages = std::ceil(static_cast<float>(page->getSizePage()) / packageSize);
+    std::list<Package*> packages;
+    for (int i = 0; i < numberOfPackages; ++i)
+    {
+        int packageId = i; // Package IDs start from 1
+        Package* package = new Package(packageId, page->getIdPage(), packageSize, numberOfPackages,
+                                       page->getOrigTerminalAddress(), page->getDestTerminalAddress());
+        package->getRouteTaken().push_back(routerAddress); // Add current router to the route
+        packages.push_back(package);
+    }
+    return packages;
 }
 
 void Router::sendPackage(int destAddress, Package* package)
@@ -94,15 +96,13 @@ void Router::receivePackage(Package* package)
     // This method should receive a package and process it
     if (hasQueueFreeSpaceForPkg(this->routerAddress))
     {
-        std::cout << "Router " << routerAddress << " received package with ID "
-                  << package->getIdPackage() << " from Router " 
-                  << package->getRouteTaken().back() << std::endl;
+        std::cout << "Router " << routerAddress << " received package with ID " << package->getIdPackage()
+                  << " from Router " << package->getRouteTaken().back() << std::endl;
     }
     else
     {
-        std::cout << "Router " << routerAddress << " has no free space for package with ID "
-                  << package->getIdPackage() << " from Router "
-                  << package->getRouteTaken().back() << std::endl;
+        std::cout << "Router " << routerAddress << " has no free space for package with ID " << package->getIdPackage()
+                  << " from Router " << package->getRouteTaken().back() << std::endl;
         return; // No space to process this package
     }
 
@@ -143,6 +143,27 @@ bool Router::hasQueueFreeSpaceForPage(int neighborAddress, int pageSize) const
     return false;
 }
 
+bool Router::checkPagesById(int pageId)
+{
+    std::list<Package*> pendingPackages;
+    // This method should check if the required number of packages to assemble a page by pageId are in the list
+    try
+    {
+        pendingPackages = pendingPackagesByPageId[pageId];
+    }
+    catch (const std::out_of_range& e)
+    {
+        std::cerr << "Error: Page ID " << pageId << " not found in pending packages." << std::endl;
+        return false; // Page ID not found
+    }
+
+    // Get the expected total number of packages from any package in the list
+    int expectedPackageCount = pendingPackages.front()->getAmountOfPackages();
+
+    // Check if we have all the required packages
+    return pendingPackages.size() != expectedPackageCount;
+}
+
 Page* Router::rebuildPage(int pageId)
 {
     // This method should rebuild a page from the pending packages
@@ -152,26 +173,24 @@ Page* Router::rebuildPage(int pageId)
         std::cerr << "No pending packages for page ID " << pageId << std::endl;
         return nullptr; // No packages to rebuild the page
     }
-    
+
     // Sort packages by package ID using merge sort
-    pendingPackages.sort([](const Package* a, const Package* b) {
-        return a->getIdPackage() < b->getIdPackage();
-    });
-    
+    pendingPackages.sort([](const Package* a, const Package* b) { return a->getIdPackage() < b->getIdPackage(); });
+
     int totalSize = 0;
 
-    for (const Package* pkg : pendingPackages) {
+    for (const Package* pkg : pendingPackages)
+    {
         totalSize += pkg->getSizePackage();
     }
-    
+
     // Create the rebuilt page
-    Page* rebuiltPage = new Page(pageId, totalSize, 
-                                pendingPackages.front()->getOrigTerminalAddress(),
-                                pendingPackages.front()->getDestTerminalAddress());
-    
+    Page* rebuiltPage = new Page(pageId, totalSize, pendingPackages.front()->getOrigTerminalAddress(),
+                                 pendingPackages.front()->getDestTerminalAddress());
+
     // Clear the pending packages for this page ID
     pendingPackagesByPageId[pageId].clear();
-    
+
     return rebuiltPage;
 }
 
