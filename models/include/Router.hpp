@@ -19,7 +19,7 @@ private:
     int routerAddress;
     int packageSize;                                         // Number of packages to divade a page into
     std::map<int, boost::circular_buffer<Package*>> packageQueuesByNeighbor; // Maps neighbor address to its package queue
-    std::map<int, int> routingTable;                                        // Maps destination address to next hop address
+    std::map<int, int> routingTable;                                         // Maps destination address to next hop address
     std::map<int, std::list<Package*>> pendingPackagesByPageId;              // Maps page ID to a list of packages that are pending for that page
     bool amIEndNode;
     NetworkSimulator* networkSimulator;
@@ -42,7 +42,7 @@ public:
     bool hasQueueFreeSpaceForPage(int neighborAddress, int pageSize) const;
 
     // End node methods
-    Page* rebuildPage();
+    Page* rebuildPage(int pageId);
     void sendPage(int destTerminalAddress);
 };
 

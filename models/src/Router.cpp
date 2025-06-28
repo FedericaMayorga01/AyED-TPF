@@ -7,6 +7,7 @@
 #include <boost/circular_buffer.hpp>
 #include <cmath>
 #include <stdexcept>
+#include <algorithm>
 
 Router::Router(int routerAddress, std::map<int, int> routingTable, int queueSize, int packageSize, NetworkSimulator* networkSimulator)
 {
@@ -142,12 +143,36 @@ bool Router::hasQueueFreeSpaceForPage(int neighborAddress, int pageSize) const
     return false;
 }
 
-Page* Router::rebuildPage()
+Page* Router::rebuildPage(int pageId)
 {
     // This method should rebuild a page from the pending packages
-    // for now it returns an empty Page
-    Page* emptyPage = new Page(0, 0, 0, 0);
-    return emptyPage;
+    std::list<Package*> pendingPackages = pendingPackagesByPageId[pageId];
+    if (pendingPackages.empty())
+    {
+        std::cerr << "No pending packages for page ID " << pageId << std::endl;
+        return nullptr; // No packages to rebuild the page
+    }
+    
+    // Sort packages by package ID using merge sort
+    pendingPackages.sort([](const Package* a, const Package* b) {
+        return a->getIdPackage() < b->getIdPackage();
+    });
+    
+    int totalSize = 0;
+
+    for (const Package* pkg : pendingPackages) {
+        totalSize += pkg->getSizePackage();
+    }
+    
+    // Create the rebuilt page
+    Page* rebuiltPage = new Page(pageId, totalSize, 
+                                pendingPackages.front()->getOrigTerminalAddress(),
+                                pendingPackages.front()->getDestTerminalAddress());
+    
+    // Clear the pending packages for this page ID
+    pendingPackagesByPageId[pageId].clear();
+    
+    return rebuiltPage;
 }
 
 void Router::sendPage(int destTerminalAddress)
