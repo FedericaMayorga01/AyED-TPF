@@ -6,19 +6,20 @@ class Page;
 class NetworkSimulator;
 class Terminal
 {
-private:
+  private:
     int terminalAddress;
     int routerAddress;
     NetworkSimulator* networkSimulator;
     std::vector<Terminal> terminalNodes;
     Page* generatePage(void);
 
-public:
+  public:
     Terminal(int terminalAddress, int routerAddress, NetworkSimulator* networkSimulator);
     int getTerminalAddress(void);
     int getRouterAddress(void);
     void setTerminalNodes(std::vector<Terminal> terminalNodes);
     void sendPage(void);
+    void receivePage(Page* page);
 };
 
 #endif // TERMINAL_HPP

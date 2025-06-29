@@ -46,8 +46,9 @@ class Router
 
     // End node methods
     bool checkPagesById(int pageId);
+    void printRouteTakenByPackage(Package* package);
     Page* rebuildPage(int pageId);
-    void sendPage(int destTerminalAddress);
+    void sendPage(Page* page);
 };
 
 #endif // ROUTER_HPP

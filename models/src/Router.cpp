@@ -69,10 +69,11 @@ std::list<Package*> Router::splitPage(Page* page)
     std::list<Package*> packages;
     for (int i = 0; i < numberOfPackages; ++i)
     {
-        int packageId = i; // Package IDs start from 1
+        int packageId = i + 1; // Package IDs start from 1
         Package* package = new Package(packageId, page->getIdPage(), packageSize, numberOfPackages,
                                        page->getOrigTerminalAddress(), page->getDestTerminalAddress());
-        package->getRouteTaken().push_back(routerAddress); // Add current router to the route
+        // Add current router to the route
+        package->addToRouteTaken(routerAddress);
         packages.push_back(package);
     }
     return packages;
@@ -86,8 +87,8 @@ void Router::sendPackage(int destAddress, Package* package)
     {
         throw std::invalid_argument("Router with address " + std::to_string(destAddress) + " not found.");
     }
-
-    package->getRouteTaken().push_back(destAddress);
+    // Add destination router to the route taken by the package
+    package->addToRouteTaken(destAddress);
     destRouter->receivePackage(package);
 }
 
@@ -164,6 +165,32 @@ bool Router::checkPagesById(int pageId)
     return pendingPackages.size() != expectedPackageCount;
 }
 
+void Router::printRouteTakenByPackage(Package* package)
+{
+    // This method should print the route taken by each package in the pending packages
+    std::cout << "  Package ID: " << package->getIdPackage() << " | Size: " << package->getSizePackage() << " bytes"
+              << " | Route taken: ";
+
+    // Print the route taken by the package
+    const std::list<int>& route = package->getRouteTaken();
+    if (route.empty())
+    {
+        std::cout << "[No route recorded]";
+    }
+    else
+    {
+        bool first = true;
+        for (int routerAddr : route)
+        {
+            if (!first)
+                std::cout << " -> ";
+            std::cout << routerAddr;
+            first = false;
+        }
+    }
+    std::cout << std::endl;
+}
+
 Page* Router::rebuildPage(int pageId)
 {
     // This method should rebuild a page from the pending packages
@@ -179,14 +206,19 @@ Page* Router::rebuildPage(int pageId)
 
     int totalSize = 0;
 
-    for (const Package* pkg : pendingPackages)
+    for (Package* pkg : pendingPackages)
     {
         totalSize += pkg->getSizePackage();
+        pkg->addToRouteTaken(pkg->getDestTerminalAddress()); // Add destination terminal to the route
+        printRouteTakenByPackage(pkg);                       // Show the route taken by the package
     }
 
     // Create the rebuilt page
     Page* rebuiltPage = new Page(pageId, totalSize, pendingPackages.front()->getOrigTerminalAddress(),
                                  pendingPackages.front()->getDestTerminalAddress());
+
+    std::cout << "Router " << routerAddress << ": Successfully rebuilt page " << pageId
+              << " with total size: " << totalSize << " bytes" << std::endl;
 
     // Clear the pending packages for this page ID
     pendingPackagesByPageId[pageId].clear();
@@ -194,7 +226,16 @@ Page* Router::rebuildPage(int pageId)
     return rebuiltPage;
 }
 
-void Router::sendPage(int destTerminalAddress)
+void Router::sendPage(Page* page)
 {
-    // This method should send a page to the specified terminal address
+    // This method should send a page to the destination terminal address
+    int terminalAddress = page->getDestTerminalAddress();
+
+    Terminal* destTerminal = networkSimulator->getTerminalByAddress(terminalAddress);
+    if (destTerminal == NULL)
+    {
+        throw std::invalid_argument("Terminal with address " + std::to_string(terminalAddress) + " not found.");
+    }
+
+    destTerminal->receivePage(page);
 }
