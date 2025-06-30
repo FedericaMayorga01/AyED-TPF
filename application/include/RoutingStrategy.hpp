@@ -15,7 +15,7 @@ public:
      * @return A map where the key is the source router address and the value is another map with destination router addresses as keys and the next hop address.
      * This method is pure virtual, meaning that it must be implemented by any derived class.
      */
-    virtual std::map<int, std::map<int, int>> computeOptimalPaths(
+    virtual std::map<int, std::map<int, Link>> computeOptimalPaths(
         std::map<int, std::list<NeighborWaitPkg>> waitQueueRouter,
         std::map<int, std::list<Link>> globalRoutingTable) = 0;
 };

@@ -10,13 +10,12 @@
 #include <set>
 #include <stdexcept>
 
-Router::Router(int routerAddress, std::map<int, int> routingTable, int queueSize, int packageSize,
-               NetworkSimulator* networkSimulator)
+Router::Router(int routerAddress, int queueSize, int packageSize, NetworkSimulator* networkSimulator)
 {
     this->packageSize = packageSize;
     this->routerAddress = routerAddress;
-    this->routingTable = routingTable;
     this->networkSimulator = networkSimulator;
+    this->routingTable = std::map<int, Link>();
 
     // Initialize package queues for each neighbor
     for (const auto& entry : routingTable)
@@ -115,6 +114,53 @@ void Router::receivePackage(Package* package)
 void Router::processQueues()
 {
     // This method should process the queues of packages
+    // std::pair<const int, boost::circular_buffer<Package *>>
+    for (auto& entry : packageQueuesByNeighbor)
+    {
+        Package* package = entry.second.front();
+        entry.second.pop_front(); // Remove the package from the queue
+        Link link = routingTable[package->getDestTerminalAddress()];
+        int bandwidth = link.getBandwidth();
+
+        sendPackage(link.getNeighbor(), package);
+        std::cout << "Router " << routerAddress << " processed package with ID " << package->getIdPackage()
+                  << " from neighbor " << entry.first << std::endl;
+
+        for (int i = 0; i < bandwidth - 1; i++)
+        {
+            if (entry.second.size() <= 0)
+            {
+                break;
+            }
+            Package* pkg = entry.second.front();
+            entry.second.pop_front(); // Remove the package from the queue
+            sendPackage(link.getNeighbor(), pkg);
+            std::cout << "Router " << routerAddress << " processed package with ID " << pkg->getIdPackage()
+                      << " from neighbor " << entry.first << std::endl;
+        }
+    }
+    
+    if (!amIEndNode) {
+        return;
+    }
+
+    for (auto& entry : pendingPackagesByPageId)
+    {
+        int pageId = entry.first;
+        std::list<Package*> pendingPackages = entry.second;
+
+        // Check if we have all packages for this page
+        if (!checkPagesById(pageId))
+        {
+            continue;
+        }
+        // Rebuild the page from the pending packages
+        Page* rebuiltPage = rebuildPage(pageId);
+        if (rebuiltPage != nullptr)
+        {
+            sendPage(rebuiltPage);
+        }
+    }
 }
 
 void Router::updateRoutingTable(std::map<int, int> newRoutingTable)

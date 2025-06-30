@@ -10,9 +10,8 @@
 class DijkstraStrategy : public RoutingStrategy
 {
 public:
-    std::map<int, std::map<int, int>> computeOptimalPaths(
-        std::map<int, std::list<NeighborWaitPkg>> waitQueueRouter,
-        std::map<int, std::list<Link>> globalRoutingTable) override;
+  std::map<int, std::map<int, Link>> computeOptimalPaths(std::map<int, std::list<NeighborWaitPkg>> waitQueueRouter,
+                                                         std::map<int, std::list<Link>> globalRoutingTable) override;
 };
 
 #endif // DIKJSTRA_STRATEGY_HPP

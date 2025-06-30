@@ -1,4 +1,5 @@
 #include "../include/NetworkSimulator.hpp"
+#include "../../models/include/Link.hpp"
 #include <iostream>
 #include <stdexcept>
 #include <vector>
@@ -78,8 +79,7 @@ void NetworkSimulator::initializeNetwork()
     // Initialize routers
     for (int address : routerAddresses)
     {
-        std::map<int, int> initialRoutingTable;
-        Router router(address, initialRoutingTable, config.queue_size, config.package_size, this);
+        Router router(address, config.queue_size, config.package_size, this);
         routers.push_back(router);
 
         std::cout << "Created router with address: " << address << " (Router #"
@@ -108,10 +108,10 @@ void NetworkSimulator::initializeNetwork()
     {
         for (const auto& neighbor : nodeConfig.neighbors)
         {
-            Link link(nodeConfig.node_address, neighbor.neighbor_address, neighbor.bandwidth);
+            Link link(0, neighbor.neighbor_address, neighbor.bandwidth);
             links.push_back(link);
 
-            std::cout << "Created link: " << nodeConfig.node_address << " -> " << neighbor.neighbor_address
+            std::cout << "Created link: " << neighbor.neighbor_address
                       << " (bandwidth: " << neighbor.bandwidth << ")" << std::endl;
         }
     }
@@ -135,7 +135,7 @@ void NetworkSimulator::setupAdministrator()
     for (const auto& link : links)
     {
         // Only add router-to-router links to global routing table
-        if (AddressUtils::isRouter(link.getSourceAddress()) && AddressUtils::isRouter(link.getDestinationAddress()))
+        if (AddressUtils::isRouter(link.getSourceAddress()) && AddressUtils::isRouter(link.getNeighbor()))
         {
             globalTable[link.getSourceAddress()].push_back(link);
         }

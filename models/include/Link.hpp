@@ -1,29 +1,27 @@
 #ifndef LINK_HPP
 #define LINK_HPP
 
-class Link {
-private:
+class Link
+{
+  private:
     int sourceAddress;
-    int destinationAddress;
+    int neighbor;
     int bandwidth;
 
-public:
+  public:
     // Constructors
-    Link(int source, int destination, int bandwidth = 100);
-    Link(int neighbor, int bandwidth); // Keep for backward compatibility
-    
+    Link(); // Default constructor
+    Link(int sourceAddress, int neighbor, int bandwidth);
+
     // Destructor
     ~Link();
 
     // Getters
     int getSourceAddress() const;
-    int getDestinationAddress() const;
-    int getNeighbor() const; // Keep for backward compatibility
+    int getNeighbor() const;
     int getBandwidth() const;
-    
+
     // Setters
-    void setSourceAddress(int source);
-    void setDestinationAddress(int destination);
     void setBandwidth(int bandwidth);
 };
 
