@@ -27,7 +27,8 @@ void Administrator::setRoutingStrategy(RoutingStrategy* routingStrategy)
 // Methods
 void Administrator::recomputes(std::map<int, std::list<Link>> globalRoutingTable)
 {
-    routingStrategy->computeOptimalPaths(collectRouterQueues(), globalRoutingTable);
+    auto result = routingStrategy->computeOptimalPaths(collectRouterQueues(), globalRoutingTable);
+    updateAllRoutingTables(result);
 }
 
 std::map<int, std::list<NeighborWaitPkg>> Administrator::collectRouterQueues()

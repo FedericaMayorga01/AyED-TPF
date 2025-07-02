@@ -101,11 +101,21 @@ void NetworkSimulator::initializeNetwork()
         terminals.push_back(terminal);
 
         std::cout << "Created terminal " << terminalAddress << " connected to router " << routerAddress << std::endl;
+
     }
 
-    for (Terminal terminal : terminals)
+    // TODO: see if is possible improve this logic
+    for (auto& terminal : terminals)
     {
-        terminal.setTerminalNodes(terminals);
+        for(auto& terminal2: terminals)
+        {
+            if (terminal.getTerminalAddress() == terminal2.getTerminalAddress())
+            {
+                continue; // Skip adding itself
+            }
+                        
+            terminal.addTerminalNode(terminal2);
+        }
     }
 
     // Initialize links
@@ -173,6 +183,12 @@ void NetworkSimulator::run()
 
         // Recompute optimal paths
         administrator->recomputes(globalTable);
+
+        // Send pages from terminals to routers
+        for (auto& terminal : terminals)
+        {
+            terminal.sendPage();
+        }
 
         // Process each router
         for (auto& router : routers)

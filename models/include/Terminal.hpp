@@ -17,7 +17,7 @@ class Terminal
     Terminal(int terminalAddress, int routerAddress, NetworkSimulator* networkSimulator);
     int getTerminalAddress(void);
     int getRouterAddress(void);
-    void setTerminalNodes(std::vector<Terminal> terminalNodes);
+    void addTerminalNode(Terminal terminalNode);
     void sendPage(void);
     void receivePage(Page* page);
 };

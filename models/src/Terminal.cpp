@@ -13,6 +13,7 @@ Terminal::Terminal(int terminalAddress, int routerAddress, NetworkSimulator* net
     this->terminalAddress = terminalAddress;
     this->routerAddress = routerAddress;
     this->networkSimulator = networkSimulator;
+    this->terminalNodes = std::vector<Terminal>();
 }
 
 int Terminal::getTerminalAddress()
@@ -25,15 +26,15 @@ int Terminal::getRouterAddress()
     return routerAddress;
 }
 
-void Terminal::setTerminalNodes(std::vector<Terminal> terminalNodes)
+void Terminal::addTerminalNode(Terminal terminalNode)
 {
-    this->terminalNodes = terminalNodes;
+    this->terminalNodes.emplace_back(terminalNode);
 }
 
 void Terminal::sendPage()
 {
     Page* page = generatePage();
-    std::cout << "Terminal " << terminalAddress << " sending page with ID " << page->getIdPage() << " of size "
+    std::cout << "Terminal " << page->getOrigTerminalAddress() << " sending page with ID " << page->getIdPage() << " of size "
               << page->getSizePage() << " bytes to terminal " << page->getDestTerminalAddress() << std::endl;
 
     Router* router = networkSimulator->getRouterByAddress(routerAddress);
