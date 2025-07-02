@@ -93,27 +93,26 @@ void Router::sendPackage(int destAddress, Package* package)
     }
     // Add destination router to the route taken by the package
     package->addToRouteTaken(destAddress);
-    destRouter->receivePackage(package);
+    destRouter->receivePackage(routerAddress, package);
 }
 
-void Router::receivePackage(Package* package)
+void Router::receivePackage(int senderAddress, Package* package)
 {
     // This method should receive a package and process it
-    if (hasQueueFreeSpaceForPkg(this->routerAddress))
+    if (hasQueueFreeSpaceForPkg(senderAddress))
     {
         std::cout << "Router " << routerAddress << " received package with ID " << package->getIdPackage()
-                  << " from Router " << package->getRouteTaken().back() << std::endl;
+                  << " from Router " << senderAddress << std::endl;
     }
     else
     {
         std::cout << "Router " << routerAddress << " has no free space for package with ID " << package->getIdPackage()
-                  << " from Router " << package->getRouteTaken().back() << std::endl;
+                  << " from Router " << senderAddress << std::endl;
         return; // No space to process this package
     }
 
     // Add the package to the queue of the corresponding neighbor
-    boost::circular_buffer<Package*> queue = packageQueuesByNeighbor[package->getRouteTaken().back()];
-    queue.push_back(package);
+    packageQueuesByNeighbor[senderAddress].push_back(package);
 }
 
 void Router::processQueues()
@@ -189,22 +188,20 @@ void Router::updateRoutingTable(bool initialize, int queueSize, std::map<int, Li
 
         for (int neighbor : uniqueNeighbors)
         {
-            packageQueuesByNeighbor[neighbor] = boost::circular_buffer<Package*>(queueSize);
-            std::cout << "  Created queue for neighbor " << neighbor << " (capacity: " << queueSize << ")" << std::endl;
+            packageQueuesByNeighbor.emplace(neighbor, boost::circular_buffer<Package*>(queueSize));
+            std::cout << "Router " << routerAddress << " has created queue for neighbor " << neighbor
+                      << " (capacity: " << packageQueuesByNeighbor[neighbor].capacity() << ")" << std::endl;
         }
-
-        this->amIEndNode = false;
     }
 }
 
-bool Router::hasQueueFreeSpaceForPkg(int neighborAddress) const
+bool Router::hasQueueFreeSpaceForPkg(int neighborAddress)
 {
-    auto it = packageQueuesByNeighbor.find(neighborAddress);
-    if (it != packageQueuesByNeighbor.end())
-    {
-        return it->second.size() < it->second.capacity();
-    }
-    return false;
+    std::cout << "Router " << routerAddress << " checking free space for neighbor " << neighborAddress
+              << ": Current size: " << packageQueuesByNeighbor[neighborAddress].size()
+              << ", Capacity: " << packageQueuesByNeighbor[neighborAddress].capacity() << std::endl;
+
+    return packageQueuesByNeighbor[neighborAddress].size() < packageQueuesByNeighbor[neighborAddress].capacity();
 }
 
 bool Router::hasQueueFreeSpaceForPage(int neighborAddress, int pageSize) const

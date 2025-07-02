@@ -39,10 +39,10 @@ class Router
     void receivePage(Page* page);
     std::list<Package*> splitPage(Page* page);
     void sendPackage(int destAddress, Package* package);
-    void receivePackage(Package* package);
+    void receivePackage(int senderAddress, Package* package);
     void processQueues();
     void updateRoutingTable(bool initialize, int queueSize, std::map<int, Link> newRoutingTable);
-    bool hasQueueFreeSpaceForPkg(int neighborAddress) const;
+    bool hasQueueFreeSpaceForPkg(int neighborAddress);
     bool hasQueueFreeSpaceForPage(int neighborAddress, int pageSize) const;
 
     // End node methods
