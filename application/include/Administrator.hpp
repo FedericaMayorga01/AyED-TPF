@@ -10,15 +10,16 @@ class RoutingStrategy;
 class Router;
 class Link;
 class NeighborWaitPkg;
-
+class NetworkSimulator;
 class Administrator
 {
   private:
     RoutingStrategy* routingStrategy;
+    NetworkSimulator* networkSimulator;
 
   public:
     // Constructor
-    Administrator(RoutingStrategy* routingStrategy);
+    Administrator(NetworkSimulator*, RoutingStrategy*);
 
     // Getters
     RoutingStrategy* getRoutingStrategy() const;
@@ -27,9 +28,9 @@ class Administrator
     void setRoutingStrategy(RoutingStrategy* routingStrategy);
 
     // Methods
-    void recomputes(const std::list<Router> routers, std::map<int, std::list<Link>> globalRoutingTable);
-    std::map<int, std::list<NeighborWaitPkg>> collectRouterQueues(const std::list<Router> routers);
-    void updateAllRoutingTables(const std::map<int, std::map<int, Link>> routingTables);
+    void recomputes(std::map<int, std::list<Link>> globalRoutingTable);
+    std::map<int, std::list<NeighborWaitPkg>> collectRouterQueues();
+    void updateAllRoutingTables(std::map<int, std::map<int, Link>> routingTables);
 };
 
 #endif // ADMINISTRATOR_HPP

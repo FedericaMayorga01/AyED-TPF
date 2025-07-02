@@ -11,6 +11,11 @@ NetworkSimulator::NetworkSimulator(const std::string& configFile)
     setupAdministrator();
 }
 
+std::vector<Router>& NetworkSimulator::getRouters()
+{
+    return routers;
+}
+
 Router* NetworkSimulator::getRouterByAddress(int address)
 {
     for (auto& router : routers)
@@ -128,7 +133,7 @@ void NetworkSimulator::setupAdministrator()
     auto routingStrategy = new DijkstraStrategy();
 
     // Create administrator
-    administrator = std::make_unique<Administrator>(routingStrategy);
+    administrator = std::make_unique<Administrator>(this, routingStrategy);
 
     for (const auto& link : links)
     {
@@ -164,11 +169,10 @@ void NetworkSimulator::run()
         }
 
         // Collect router queues
-        std::list<Router> routerList(routers.begin(), routers.end());
-        auto queueInfo = administrator->collectRouterQueues(routerList);
+        auto queueInfo = administrator->collectRouterQueues();
 
         // Recompute optimal paths
-        administrator->recomputes(routerList, globalTable);
+        administrator->recomputes(globalTable);
 
         // Process each router
         for (auto& router : routers)

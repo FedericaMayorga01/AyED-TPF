@@ -27,6 +27,7 @@ class NetworkSimulator
     NetworkSimulator(const std::string& configFile);
     Router* getRouterByAddress(int address);
     Terminal* getTerminalByAddress(int address);
+    std::vector<Router>& getRouters();
     void loadConfiguration(const std::string& configFile);
     void initializeNetwork();
     void initializeTerminals();
