@@ -76,8 +76,15 @@ std::list<Package*> Router::splitPage(Page* page)
 
 void Router::sendPackage(int destAddress, Package* package)
 {
-    std::cout << "Package with ID " << package->getIdPackage() << " is being sent from Router "
-              << routerAddress << " to Router " << destAddress << std::endl;
+    std::cout << "Package with ID " << package->getIdPackage() << " is being sent from Router " << routerAddress
+              << " to Router " << destAddress << std::endl;
+
+    if (AddressUtils::isTerminal(destAddress))
+    {
+        std::cout << "This address belong to a terminal node, ignoring..." << std::endl;
+        return;
+    }
+
     // This method should send a package to the specified destination address
     Router* destRouter = networkSimulator->getRouterByAddress(destAddress);
     if (destRouter == NULL)
@@ -112,10 +119,11 @@ void Router::receivePackage(Package* package)
 void Router::processQueues()
 {
     // This method should process the queues of packages
-    // std::pair<const int, boost::circular_buffer<Package *>>
+
     for (auto& entry : packageQueuesByNeighbor)
     {
         Package* package = entry.second.front();
+
         entry.second.pop_front(); // Remove the package from the queue
         std::cout << "processQueues: destination address = " << package->getDestTerminalAddress()
                   << ", package ID = " << package->getIdPackage() << std::endl;

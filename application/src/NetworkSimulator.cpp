@@ -79,6 +79,7 @@ void NetworkSimulator::initializeNetwork()
         if (AddressUtils::isRouter(nodeConfig.node_address))
         {
             routerAddresses.insert(nodeConfig.node_address);
+            globalTable[nodeConfig.node_address] = std::list<Link>();
             std::cout << "Found router: " << nodeConfig.node_address << " (Router #"
                       << AddressUtils::getRouterNumber(nodeConfig.node_address) << ")" << std::endl;
         }
@@ -163,6 +164,7 @@ void NetworkSimulator::setupAdministrator()
         // Only add router-to-router links to global routing table
         if (AddressUtils::isRouter(link.getSourceAddress()) && AddressUtils::isRouter(link.getNeighbor()))
         {
+            std::cout << "Adding link to global routing table for router " << link.getSourceAddress() << std::endl;
             globalTable[link.getSourceAddress()].push_back(link);
         }
     }
