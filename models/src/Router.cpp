@@ -9,6 +9,7 @@
 #include <iostream>
 #include <set>
 #include <stdexcept>
+#include <utility>
 
 Router::Router(int routerAddress, int queueSize, int packageSize, NetworkSimulator* networkSimulator)
 {
@@ -54,18 +55,21 @@ void Router::receivePage(Page* page)
     for (Package* pkg : packages)
     {
         packageQueuesByNeighbor[page->getOrigTerminalAddress()].push_back(pkg);
+        std::cout << "Router " << routerAddress << " added package with ID "
+                  << packageQueuesByNeighbor[page->getOrigTerminalAddress()].back()->getIdPackage()
+                  << " to queue for neighbor (terminal)" << page->getOrigTerminalAddress() << std::endl;
     }
 }
 
 std::list<Package*> Router::splitPage(Page* page)
 {
     // This method should split a page into packages
-    int numberOfPackages = std::ceil(static_cast<float>(page->getSizePage()) / packageSize);
+    const int numberOfPackages = std::ceil(static_cast<float>(page->getSizePage()) / packageSize);
+
     std::list<Package*> packages;
-    for (int i = 0; i < numberOfPackages; ++i)
+    for (int packageId = 1; packageId <= numberOfPackages; packageId++)
     {
-        int packageId = i + 1; // Package IDs start from 1
-        Package* package = new Package(packageId, page->getIdPage(), packageSize, numberOfPackages,
+        auto* package = new Package(packageId, page->getIdPage(), packageSize, numberOfPackages,
                                        page->getOrigTerminalAddress(), page->getDestTerminalAddress());
         // Add current router to the route
         package->addToRouteTaken(routerAddress);
@@ -81,7 +85,13 @@ void Router::sendPackage(int destAddress, Package* package)
 
     if (AddressUtils::isTerminal(destAddress))
     {
-        std::cout << "This address belong to a terminal node, ignoring..." << std::endl;
+        std::cout << "This address belong to a terminal node, adding to pendingPkgsByPageId" << std::endl;
+        
+        pendingPackagesByPageId[package->getIdPage()].push_back(package);
+
+        std::cout << "Router " << routerAddress << " added package with ID " << package->getIdPackage()
+                  << " to pending packages for page ID " << package->getIdPage() << std::endl;
+
         return;
     }
 
@@ -118,35 +128,37 @@ void Router::receivePackage(int senderAddress, Package* package)
 void Router::processQueues()
 {
     // This method should process the queues of packages
-
     for (auto& entry : packageQueuesByNeighbor)
     {
-        Package* package = entry.second.front();
+        boost::circular_buffer<Package*>& queue = entry.second;
+        if (queue.empty()) {
+            continue;
+        }
 
-        entry.second.pop_front(); // Remove the package from the queue
-        std::cout << "processQueues: destination address = " << package->getDestTerminalAddress()
-                  << ", package ID = " << package->getIdPackage() << std::endl;
+        Package* package = queue.front();
+
         // Update the routing table
         Link link = routingTable[package->getDestTerminalAddress()];
         int bandwidth = link.getBandwidth();
 
         sendPackage(link.getNeighbor(), package);
-        std::cout << "Router " << routerAddress << " processed package with ID " << package->getIdPackage()
-                  << " from neighbor " << entry.first << std::endl;
 
-        for (int i = 0; i < bandwidth - 1; i++)
+        for (int i = 1; i <= bandwidth; i++)
         {
-            if (entry.second.size() <= 0)
+            std::cout << "Router " << routerAddress << " processed package with ID " << package->getIdPackage()
+                  << " from neighbor " << entry.first << std::endl;
+            queue.pop_front(); // Remove the package from the queue
+
+            if (queue.size() <= 0)
             {
                 break;
             }
-            Package* pkg = entry.second.front();
-            entry.second.pop_front(); // Remove the package from the queue
+            Package* pkg = queue.front();
             sendPackage(link.getNeighbor(), pkg);
-            std::cout << "Router " << routerAddress << " processed package with ID " << pkg->getIdPackage()
-                      << " from neighbor " << entry.first << std::endl;
         }
     }
+
+    std::cout << "Router " << routerAddress << " amIEndNode: " << (amIEndNode ? "true" : "false") << std::endl;
 
     if (!amIEndNode)
     {
@@ -174,7 +186,7 @@ void Router::processQueues()
 
 void Router::updateRoutingTable(bool initialize, int queueSize, std::map<int, Link> newRoutingTable)
 {
-    routingTable = newRoutingTable;
+    routingTable = std::move(newRoutingTable);
 
     std::set<int> uniqueNeighbors;
     for (const auto& entry : routingTable)
@@ -188,6 +200,7 @@ void Router::updateRoutingTable(bool initialize, int queueSize, std::map<int, Li
 
         for (int neighbor : uniqueNeighbors)
         {
+            amIEndNode = amIEndNode || AddressUtils::isTerminal(neighbor);
             packageQueuesByNeighbor.emplace(neighbor, boost::circular_buffer<Package*>(queueSize));
             std::cout << "Router " << routerAddress << " has created queue for neighbor " << neighbor
                       << " (capacity: " << packageQueuesByNeighbor[neighbor].capacity() << ")" << std::endl;

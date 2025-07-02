@@ -208,6 +208,7 @@ void NetworkSimulator::run()
         // Process each router
         for (auto& router : routers)
         {
+            std::cout << "Processing router " << router.getRouterAddress() << " queues..." << std::endl;
             router.processQueues();
         }
 

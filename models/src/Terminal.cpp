@@ -44,7 +44,7 @@ void Terminal::sendPage()
 
 Page* Terminal::generatePage()
 {
-    static int idPage = 0;
+    static int idPage = 1;
     int sizePage = std::rand() % 10240 + 256;
 
     int randomIndex = std::rand() % terminalNodes.size();
