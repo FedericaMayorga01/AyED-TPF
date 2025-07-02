@@ -21,6 +21,7 @@ class NetworkSimulator
     std::vector<Link> links;
     std::unique_ptr<Administrator> administrator;
     NetworkConfig config;
+    std::map<int, std::list<Link>> globalTable;
 
   public:
     NetworkSimulator(const std::string& configFile);

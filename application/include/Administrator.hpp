@@ -2,8 +2,8 @@
 #define ADMINISTRATOR_HPP
 
 // Headers
-#include <map>
 #include <list>
+#include <map>
 
 // Forward declarations
 class RoutingStrategy;
@@ -13,22 +13,23 @@ class NeighborWaitPkg;
 
 class Administrator
 {
-    private:
-        RoutingStrategy *routingStrategy; // Pointer to the routing strategy
-        std::map<int, std::list<Link>> globalRoutingTable; // Global routing table mapping router addresses to lists of links
-    
-    public:
-        // Constructor
-        Administrator(RoutingStrategy *routingStrategy);
+  private:
+    RoutingStrategy* routingStrategy;
 
-        // Getters
-        RoutingStrategy* getRoutingStrategy() const;
-        std::map<int, std::list<Link>> getGlobalRoutingTable() const;
+  public:
+    // Constructor
+    Administrator(RoutingStrategy* routingStrategy);
 
-        // Methods
-        void recomputes();
-        std::map<int, std::list<NeighborWaitPkg>> collectRouterQueues(const std::list<Router> &routers);
-        void updateAllRoutingTables(const std::map<int, std::map<int, int>>& routingTables);
+    // Getters
+    RoutingStrategy* getRoutingStrategy() const;
+
+    // Setters
+    void setRoutingStrategy(RoutingStrategy* routingStrategy);
+
+    // Methods
+    void recomputes(const std::list<Router> routers, std::map<int, std::list<Link>> globalRoutingTable);
+    std::map<int, std::list<NeighborWaitPkg>> collectRouterQueues(const std::list<Router> routers);
+    void updateAllRoutingTables(const std::map<int, std::map<int, Link>> routingTables);
 };
 
 #endif // ADMINISTRATOR_HPP

@@ -1,6 +1,6 @@
 #include "../include/Router.hpp"
-#include "../include/NetworkConfig.hpp"
-#include "../include/NetworkSimulator.hpp"
+#include "../../application/include/NetworkConfig.hpp"
+#include "../../application/include/NetworkSimulator.hpp"
 #include "../include/Package.hpp"
 #include "../include/Page.hpp"
 #include <algorithm>
@@ -34,6 +34,11 @@ int Router::getRouterAddress() const
 bool Router::getAmIEndNode() const
 {
     return amIEndNode;
+}
+
+std::map<int, boost::circular_buffer<Package*>> Router::getPackageQueuesByNeighbor() const
+{
+    return packageQueuesByNeighbor;
 }
 
 void Router::receivePage(Page* page)
@@ -119,6 +124,7 @@ void Router::processQueues()
     {
         Package* package = entry.second.front();
         entry.second.pop_front(); // Remove the package from the queue
+        // Update the routing table
         Link link = routingTable[package->getDestTerminalAddress()];
         int bandwidth = link.getBandwidth();
 
@@ -139,8 +145,9 @@ void Router::processQueues()
                       << " from neighbor " << entry.first << std::endl;
         }
     }
-    
-    if (!amIEndNode) {
+
+    if (!amIEndNode)
+    {
         return;
     }
 
@@ -163,9 +170,10 @@ void Router::processQueues()
     }
 }
 
-void Router::updateRoutingTable(std::map<int, int> newRoutingTable)
+void Router::updateRoutingTable(std::map<int, Link> newRoutingTable)
 {
     // This method should update the routing table with the new routing information
+    routingTable = newRoutingTable;
 }
 
 bool Router::hasQueueFreeSpaceForPkg(int neighborAddress) const
@@ -208,7 +216,7 @@ bool Router::checkPagesById(int pageId)
     int expectedPackageCount = pendingPackages.front()->getAmountOfPackages();
 
     // Check if we have all the required packages
-    return pendingPackages.size() != expectedPackageCount;
+    return pendingPackages.size() == expectedPackageCount;
 }
 
 void Router::printRouteTakenByPackage(Package* package)

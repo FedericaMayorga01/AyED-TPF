@@ -111,8 +111,8 @@ void NetworkSimulator::initializeNetwork()
             Link link(0, neighbor.neighbor_address, neighbor.bandwidth);
             links.push_back(link);
 
-            std::cout << "Created link: " << neighbor.neighbor_address
-                      << " (bandwidth: " << neighbor.bandwidth << ")" << std::endl;
+            std::cout << "Created link: " << neighbor.neighbor_address << " (bandwidth: " << neighbor.bandwidth << ")"
+                      << std::endl;
         }
     }
 
@@ -130,8 +130,6 @@ void NetworkSimulator::setupAdministrator()
     // Create administrator
     administrator = std::make_unique<Administrator>(routingStrategy);
 
-    // Build global routing table from links (only router-to-router links)
-    std::map<int, std::list<Link>> globalTable;
     for (const auto& link : links)
     {
         // Only add router-to-router links to global routing table
@@ -153,12 +151,24 @@ void NetworkSimulator::run()
     {
         std::cout << "\n--- Cycle " << cycle + 1 << " ---" << std::endl;
 
+        if (cycle % 2)
+        {
+            administrator->setRoutingStrategy(new DijkstraStrategy());
+            std::cout << "Using Dijkstra's algorithm for routing" << std::endl;
+        }
+        else
+        {
+            // TODO: Implement alternative routing strategy if needed
+            administrator->setRoutingStrategy(new DijkstraStrategy());
+            std::cout << "Using Dijkstra's algorithm for routing" << std::endl;
+        }
+
         // Collect router queues
         std::list<Router> routerList(routers.begin(), routers.end());
         auto queueInfo = administrator->collectRouterQueues(routerList);
 
         // Recompute optimal paths
-        administrator->recomputes();
+        administrator->recomputes(routerList, globalTable);
 
         // Process each router
         for (auto& router : routers)
