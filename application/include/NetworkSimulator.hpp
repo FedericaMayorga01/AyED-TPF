@@ -28,6 +28,8 @@ class NetworkSimulator
     Router* getRouterByAddress(int address);
     Terminal* getTerminalByAddress(int address);
     std::vector<Router>& getRouters();
+    int getQueueSize() const;
+    int getCycle() const;
     void loadConfiguration(const std::string& configFile);
     void initializeNetwork();
     void initializeTerminals();

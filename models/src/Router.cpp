@@ -16,14 +16,6 @@ Router::Router(int routerAddress, int queueSize, int packageSize, NetworkSimulat
     this->routerAddress = routerAddress;
     this->networkSimulator = networkSimulator;
     this->routingTable = std::map<int, Link>();
-
-    // Initialize package queues for each neighbor
-    for (const auto& entry : routingTable)
-    {
-        int neighborAddress = entry.first;
-        packageQueuesByNeighbor[neighborAddress] = boost::circular_buffer<Package*>(queueSize);
-        this->amIEndNode = AddressUtils::isTerminal(neighborAddress);
-    }
 }
 
 int Router::getRouterAddress() const
@@ -59,10 +51,9 @@ void Router::receivePage(Page* page)
     std::list<Package*> packages = splitPage(page);
 
     // Store the packages in the packageQueuesByNeighbor map
-    boost::circular_buffer queue = packageQueuesByNeighbor[page->getOrigTerminalAddress()];
     for (Package* pkg : packages)
     {
-        queue.push_back(pkg);
+        packageQueuesByNeighbor[page->getOrigTerminalAddress()].push_back(pkg);
     }
 }
 
@@ -85,6 +76,8 @@ std::list<Package*> Router::splitPage(Page* page)
 
 void Router::sendPackage(int destAddress, Package* package)
 {
+    std::cout << "Package with ID " << package->getIdPackage() << " is being sent from Router "
+              << routerAddress << " to Router " << destAddress << std::endl;
     // This method should send a package to the specified destination address
     Router* destRouter = networkSimulator->getRouterByAddress(destAddress);
     if (destRouter == NULL)
@@ -124,6 +117,8 @@ void Router::processQueues()
     {
         Package* package = entry.second.front();
         entry.second.pop_front(); // Remove the package from the queue
+        std::cout << "processQueues: destination address = " << package->getDestTerminalAddress()
+                  << ", package ID = " << package->getIdPackage() << std::endl;
         // Update the routing table
         Link link = routingTable[package->getDestTerminalAddress()];
         int bandwidth = link.getBandwidth();
@@ -170,10 +165,28 @@ void Router::processQueues()
     }
 }
 
-void Router::updateRoutingTable(std::map<int, Link> newRoutingTable)
+void Router::updateRoutingTable(bool initialize, int queueSize, std::map<int, Link> newRoutingTable)
 {
-    // This method should update the routing table with the new routing information
     routingTable = newRoutingTable;
+
+    std::set<int> uniqueNeighbors;
+    for (const auto& entry : routingTable)
+    {
+        uniqueNeighbors.insert(entry.second.getNeighbor());
+    }
+
+    if (initialize)
+    {
+        packageQueuesByNeighbor.clear();
+
+        for (int neighbor : uniqueNeighbors)
+        {
+            packageQueuesByNeighbor[neighbor] = boost::circular_buffer<Package*>(queueSize);
+            std::cout << "  Created queue for neighbor " << neighbor << " (capacity: " << queueSize << ")" << std::endl;
+        }
+
+        this->amIEndNode = false;
+    }
 }
 
 bool Router::hasQueueFreeSpaceForPkg(int neighborAddress) const

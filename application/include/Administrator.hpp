@@ -28,9 +28,9 @@ class Administrator
     void setRoutingStrategy(RoutingStrategy* routingStrategy);
 
     // Methods
-    void recomputes(std::map<int, std::list<Link>> globalRoutingTable);
+    void recomputes(int cycle, std::map<int, std::list<Link>> globalRoutingTable);
     std::map<int, std::list<NeighborWaitPkg>> collectRouterQueues();
-    void updateAllRoutingTables(std::map<int, std::map<int, Link>> routingTables);
+    void updateAllRoutingTables(int cycle, std::map<int, std::map<int, Link>> routingTables);
 };
 
 #endif // ADMINISTRATOR_HPP

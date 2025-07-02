@@ -11,6 +11,16 @@ NetworkSimulator::NetworkSimulator(const std::string& configFile)
     setupAdministrator();
 }
 
+int NetworkSimulator::getQueueSize() const
+{
+    return config.queue_size;
+}
+
+int NetworkSimulator::getCycle() const
+{
+    return config.total_cycle;
+}
+
 std::vector<Router>& NetworkSimulator::getRouters()
 {
     return routers;
@@ -123,7 +133,7 @@ void NetworkSimulator::initializeNetwork()
     {
         for (const auto& neighbor : nodeConfig.neighbors)
         {
-            Link link(0, neighbor.neighbor_address, neighbor.bandwidth);
+            Link link(nodeConfig.node_address, neighbor.neighbor_address, neighbor.bandwidth);
             links.push_back(link);
 
             std::cout << "Created link: " << neighbor.neighbor_address << " (bandwidth: " << neighbor.bandwidth << ")"
@@ -147,6 +157,9 @@ void NetworkSimulator::setupAdministrator()
 
     for (const auto& link : links)
     {
+        std::cout << "Adding link from " << link.getSourceAddress()
+                  << " to neighbor " << link.getNeighbor()
+                  << " with bandwidth " << link.getBandwidth() << std::endl;
         // Only add router-to-router links to global routing table
         if (AddressUtils::isRouter(link.getSourceAddress()) && AddressUtils::isRouter(link.getNeighbor()))
         {
@@ -162,9 +175,9 @@ void NetworkSimulator::run()
 {
     std::cout << "\n=== Starting Network Simulation ===" << std::endl;
 
-    for (int cycle = 0; cycle < config.total_cycle; ++cycle)
+    for (int cycle = 1; cycle <= config.total_cycle; cycle++)
     {
-        std::cout << "\n--- Cycle " << cycle + 1 << " ---" << std::endl;
+        std::cout << "\n--- Cycle " << cycle << " ---" << std::endl;
 
         if (cycle % 2)
         {
@@ -182,7 +195,7 @@ void NetworkSimulator::run()
         auto queueInfo = administrator->collectRouterQueues();
 
         // Recompute optimal paths
-        administrator->recomputes(globalTable);
+        administrator->recomputes(cycle, globalTable);
 
         // Send pages from terminals to routers
         for (auto& terminal : terminals)
@@ -196,7 +209,7 @@ void NetworkSimulator::run()
             router.processQueues();
         }
 
-        std::cout << "Cycle " << cycle + 1 << " completed" << std::endl;
+        std::cout << "Cycle " << cycle << " completed" << std::endl;
     }
 
     std::cout << "\n=== Simulation Completed ===" << std::endl;

@@ -25,10 +25,10 @@ void Administrator::setRoutingStrategy(RoutingStrategy* routingStrategy)
 }
 
 // Methods
-void Administrator::recomputes(std::map<int, std::list<Link>> globalRoutingTable)
+void Administrator::recomputes(int cycle, std::map<int, std::list<Link>> globalRoutingTable)
 {
     auto result = routingStrategy->computeOptimalPaths(collectRouterQueues(), globalRoutingTable);
-    updateAllRoutingTables(result);
+    updateAllRoutingTables(cycle, result);
 }
 
 std::map<int, std::list<NeighborWaitPkg>> Administrator::collectRouterQueues()
@@ -47,10 +47,11 @@ std::map<int, std::list<NeighborWaitPkg>> Administrator::collectRouterQueues()
     return routerWaitingQueues;
 }
 
-void Administrator::updateAllRoutingTables(std::map<int, std::map<int, Link>> routingTables)
+void Administrator::updateAllRoutingTables(int cycle, std::map<int, std::map<int, Link>> routingTables)
 {
+    bool initialize = cycle == 1;
     for (auto& router : networkSimulator->getRouters())
     {
-        router.updateRoutingTable(routingTables[router.getRouterAddress()]);
+        router.updateRoutingTable(initialize, networkSimulator->getQueueSize(), routingTables[router.getRouterAddress()]);
     }
 }

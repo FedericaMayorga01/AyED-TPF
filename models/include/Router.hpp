@@ -41,7 +41,7 @@ class Router
     void sendPackage(int destAddress, Package* package);
     void receivePackage(Package* package);
     void processQueues();
-    void updateRoutingTable(std::map<int, Link> newRoutingTable);
+    void updateRoutingTable(bool initialize, int queueSize, std::map<int, Link> newRoutingTable);
     bool hasQueueFreeSpaceForPkg(int neighborAddress) const;
     bool hasQueueFreeSpaceForPage(int neighborAddress, int pageSize) const;
 
