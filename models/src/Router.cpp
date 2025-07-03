@@ -142,11 +142,11 @@ void Router::processQueues()
         int bandwidth = link.getBandwidth();
 
         sendPackage(link.getNeighbor(), package);
+        std::cout << "Router " << routerAddress << " processed package with ID " << package->getIdPackage()
+                          << " from neighbor " << entry.first << std::endl;
 
         for (int i = 1; i <= bandwidth; i++)
         {
-            std::cout << "Router " << routerAddress << " processed package with ID " << package->getIdPackage()
-                  << " from neighbor " << entry.first << std::endl;
             queue.pop_front(); // Remove the package from the queue
 
             if (queue.empty())
@@ -155,6 +155,8 @@ void Router::processQueues()
             }
             Package* pkg = queue.front();
             sendPackage(link.getNeighbor(), pkg);
+            std::cout << "Router " << routerAddress << " processed package with ID " << pkg->getIdPackage()
+                  << " from neighbor " << entry.first << std::endl;
         }
     }
 
