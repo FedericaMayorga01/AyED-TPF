@@ -12,21 +12,21 @@ class Package
     int amountOfPackages;
     int origTerminalAddress;
     int destTerminalAddress;
-    int cycleCounter;
+    int cycleCounter{};
     std::list<int> routeTaken;
 
   public:
     Package(int idPackage, int idPage, int sizePackage, int amountOfPackages, int origTerminalAddress,
             int destTerminalAddress);
 
-    int getIdPackage() const;
-    int getIdPage() const;
-    int getSizePackage() const;
-    int getAmountOfPackages() const;
-    int getOrigTerminalAddress() const;
-    int getDestTerminalAddress() const;
-    int getCycleCounter() const;
-    std::list<int> getRouteTaken() const;
+    [[nodiscard]] int getIdPackage() const;
+    [[nodiscard]] int getIdPage() const;
+    [[nodiscard]] int getSizePackage() const;
+    [[nodiscard]] int getAmountOfPackages() const;
+    [[nodiscard]] int getOrigTerminalAddress() const;
+    [[nodiscard]] int getDestTerminalAddress() const;
+    [[nodiscard]] int getCycleCounter() const;
+    [[nodiscard]] std::list<int> getRouteTaken() const;
     void addToRouteTaken(int address);
 };
 

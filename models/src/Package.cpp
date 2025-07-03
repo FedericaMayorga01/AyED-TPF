@@ -1,8 +1,8 @@
 #include "../include/Package.hpp"
 #include <list>
 
-Package::Package(int idPackage, int idPage, int sizePackage, int amountOfPackages, int origTerminalAddress,
-                 int destTerminalAddress)
+Package::Package(const int idPackage, const int idPage, const int sizePackage, const int amountOfPackages, const int origTerminalAddress,
+                 const int destTerminalAddress)
 {
     this->idPackage = idPackage;
     this->idPage = idPage;
@@ -52,7 +52,7 @@ std::list<int> Package::getRouteTaken() const
     return routeTaken;
 }
 
-void Package::addToRouteTaken(int address)
+void Package::addToRouteTaken(const int address)
 {
     this->routeTaken.push_back(address);
 }

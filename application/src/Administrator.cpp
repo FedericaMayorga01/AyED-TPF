@@ -4,7 +4,6 @@
 #include "../../models/include/Router.hpp"
 #include "../include/RoutingStrategy.hpp"
 #include "../include/NetworkSimulator.hpp"
-#include <iostream>
 #include <list>
 
 // Constructor
@@ -25,21 +24,20 @@ void Administrator::setRoutingStrategy(RoutingStrategy* routingStrategy)
 }
 
 // Methods
-void Administrator::recomputes(int cycle, std::map<int, std::list<Link>> globalRoutingTable)
+void Administrator::recomputes(int cycle, const std::map<int, std::list<Link>> &globalRoutingTable)
 {
-    auto result = routingStrategy->computeOptimalPaths(collectRouterQueues(), globalRoutingTable);
+    const auto result = routingStrategy->computeOptimalPaths(collectRouterQueues(), globalRoutingTable);
     updateAllRoutingTables(cycle, result);
 }
 
-std::map<int, std::list<NeighborWaitPkg>> Administrator::collectRouterQueues()
-{
+std::map<int, std::list<NeighborWaitPkg>> Administrator::collectRouterQueues() const {
     std::map<int, std::list<NeighborWaitPkg>> routerWaitingQueues;
     for (auto& router : networkSimulator->getRouters())
     {
         std::list<NeighborWaitPkg> neighborWaitingPackages;
-        for (auto mapQueue : router.getPackageQueuesByNeighbor())
+        for (const auto& mapQueue : router.getPackageQueuesByNeighbor())
         {
-            neighborWaitingPackages.push_back(NeighborWaitPkg(mapQueue.first, mapQueue.second.size()));
+            neighborWaitingPackages.emplace_back(mapQueue.first, mapQueue.second.size());
         }
         routerWaitingQueues.emplace(router.getRouterAddress(), neighborWaitingPackages);
     }
@@ -47,8 +45,7 @@ std::map<int, std::list<NeighborWaitPkg>> Administrator::collectRouterQueues()
     return routerWaitingQueues;
 }
 
-void Administrator::updateAllRoutingTables(int cycle, std::map<int, std::map<int, Link>> routingTables)
-{
+void Administrator::updateAllRoutingTables(int cycle, std::map<int, std::map<int, Link>> routingTables) const {
     bool initialize = cycle == 1;
     for (auto& router : networkSimulator->getRouters())
     {

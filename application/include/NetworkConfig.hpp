@@ -11,7 +11,7 @@ struct NeighborConfig {
 };
 
 struct NodeConfig {
-    int node_address;
+    int node_address{};
     std::vector<NeighborConfig> neighbors;
 };
 

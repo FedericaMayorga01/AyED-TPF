@@ -8,8 +8,8 @@ private:
 
 public:
   NeighborWaitPkg(int neighbor, int waitPkg);
-  int getNeighbor() const;
-  int getWaitPkg() const;
+  [[nodiscard]] int getNeighbor() const;
+  [[nodiscard]] int getWaitPkg() const;
 };
 
 #endif // NEIGHBORWAITPKG_HPP

@@ -34,7 +34,7 @@ std::map<int, boost::circular_buffer<Package*>> Router::getPackageQueuesByNeighb
     return packageQueuesByNeighbor;
 }
 
-void Router::receivePage(Page* page)
+void Router::receivePage(const Page* page)
 {
     if (hasQueueFreeSpaceForPage(page->getOrigTerminalAddress(), page->getSizePage()))
     {
@@ -61,7 +61,7 @@ void Router::receivePage(Page* page)
     }
 }
 
-std::list<Package*> Router::splitPage(Page* page)
+std::list<Package*> Router::splitPage(const Page* page) const
 {
     // This method should split a page into packages
     const int numberOfPackages = std::ceil(static_cast<float>(page->getSizePage()) / packageSize);
@@ -97,7 +97,7 @@ void Router::sendPackage(int destAddress, Package* package)
 
     // This method should send a package to the specified destination address
     Router* destRouter = networkSimulator->getRouterByAddress(destAddress);
-    if (destRouter == NULL)
+    if (destRouter == nullptr)
     {
         throw std::invalid_argument("Router with address " + std::to_string(destAddress) + " not found.");
     }
@@ -149,7 +149,7 @@ void Router::processQueues()
                   << " from neighbor " << entry.first << std::endl;
             queue.pop_front(); // Remove the package from the queue
 
-            if (queue.size() <= 0)
+            if (queue.empty())
             {
                 break;
             }
@@ -171,14 +171,20 @@ void Router::processQueues()
         std::list<Package*> pendingPackages = entry.second;
 
         // Check if we have all packages for this page
-        if (!checkPagesById(pageId))
+        if (pendingPackages.empty() || !checkPagesById(pageId))
         {
             continue;
         }
+
+        std::cout << "Router " << routerAddress << " has all packages for page ID " << pageId << std::endl;
+
         // Rebuild the page from the pending packages
         Page* rebuiltPage = rebuildPage(pageId);
+
+
         if (rebuiltPage != nullptr)
         {
+            std::cout << "Router " << routerAddress << " has rebuilt page with ID " << rebuiltPage->getIdPage() << std::endl;
             sendPage(rebuiltPage);
         }
     }
@@ -250,11 +256,10 @@ bool Router::checkPagesById(int pageId)
     return pendingPackages.size() == expectedPackageCount;
 }
 
-void Router::printRouteTakenByPackage(Package* package)
+void Router::printRouteTakenByPackage(const Package* package)
 {
     // This method should print the route taken by each package in the pending packages
-    std::cout << "  Package ID: " << package->getIdPackage() << " | Size: " << package->getSizePackage() << " bytes"
-              << " | Route taken: ";
+    std::cout << "  Package ID: " << package->getIdPackage() << " | Route taken: ";
 
     // Print the route taken by the package
     const std::list<int>& route = package->getRouteTaken();
@@ -276,8 +281,9 @@ void Router::printRouteTakenByPackage(Package* package)
     std::cout << std::endl;
 }
 
-Page* Router::rebuildPage(int pageId)
+Page* Router::rebuildPage(const int pageId)
 {
+    std::cout << "Router " << routerAddress << ": Rebuilding page with ID " << pageId << std::endl;
     // This method should rebuild a page from the pending packages
     std::list<Package*> pendingPackages = pendingPackagesByPageId[pageId];
     if (pendingPackages.empty())
@@ -302,8 +308,7 @@ Page* Router::rebuildPage(int pageId)
     Page* rebuiltPage = new Page(pageId, totalSize, pendingPackages.front()->getOrigTerminalAddress(),
                                  pendingPackages.front()->getDestTerminalAddress());
 
-    std::cout << "Router " << routerAddress << ": Successfully rebuilt page " << pageId
-              << " with total size: " << totalSize << " bytes" << std::endl;
+    std::cout << "Router " << routerAddress << ": Successfully rebuilt page " << pageId << std::endl;
 
     // Clear the pending packages for this page ID
     pendingPackagesByPageId[pageId].clear();
@@ -311,13 +316,12 @@ Page* Router::rebuildPage(int pageId)
     return rebuiltPage;
 }
 
-void Router::sendPage(Page* page)
-{
+void Router::sendPage(Page* page) const {
     // This method should send a page to the destination terminal address
-    int terminalAddress = page->getDestTerminalAddress();
+    const int terminalAddress = page->getDestTerminalAddress();
 
-    Terminal* destTerminal = networkSimulator->getTerminalByAddress(terminalAddress);
-    if (destTerminal == NULL)
+    const Terminal* destTerminal = networkSimulator->getTerminalByAddress(terminalAddress);
+    if (destTerminal == nullptr)
     {
         throw std::invalid_argument("Terminal with address " + std::to_string(terminalAddress) + " not found.");
     }

@@ -1,6 +1,6 @@
 #include "../include/NeighborWaitPkg.hpp"
 
-NeighborWaitPkg::NeighborWaitPkg(int neighbor, int waitPkg) {
+NeighborWaitPkg::NeighborWaitPkg(const int neighbor, const int waitPkg) {
   this->neighbor = neighbor;
   this->waitPkg = waitPkg;
 }

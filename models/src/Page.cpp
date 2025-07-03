@@ -1,8 +1,7 @@
 #include "../include/Page.hpp"
 
-Page::Page(int idPage, int sizePage, int origTerminalAddress,
-           int destTerminalAddress)
-{
+Page::Page(const int idPage, const int sizePage, const int origTerminalAddress,
+           const int destTerminalAddress): idPage(0) {
     this->idPage = idPage;
     this->sizePage = sizePage;
     this->origTerminalAddress = origTerminalAddress;

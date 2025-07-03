@@ -1,7 +1,6 @@
 #include "NetworkConfig.hpp"
 #include <fstream>
 #include <sstream>
-#include <iostream>
 #include <stdexcept>
 
 NetworkConfig ConfigParser::parseConfig(const std::string& filename) {
@@ -19,8 +18,8 @@ NetworkConfig ConfigParser::parseConfig(const std::string& filename) {
 
 NetworkConfig ConfigParser::parseJsonString(const std::string& jsonContent) {
     try {
-        nlohmann::json j = nlohmann::json::parse(jsonContent);
-        NetworkConfig config = j.get<NetworkConfig>();
+        const nlohmann::json j = nlohmann::json::parse(jsonContent);
+        auto config = j.get<NetworkConfig>();
         return config;
     } catch (const nlohmann::json::exception& e) {
         throw std::runtime_error("JSON parsing error: " + std::string(e.what()));

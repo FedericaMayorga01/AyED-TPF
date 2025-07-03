@@ -1,7 +1,6 @@
 #include "../include/NetworkSimulator.hpp"
 #include "../../models/include/Link.hpp"
 #include <iostream>
-#include <stdexcept>
 #include <vector>
 
 NetworkSimulator::NetworkSimulator(const std::string& configFile)
@@ -218,8 +217,7 @@ void NetworkSimulator::run()
     std::cout << "\n=== Simulation Completed ===" << std::endl;
 }
 
-void NetworkSimulator::printNetworkInfo()
-{
+void NetworkSimulator::printNetworkInfo() const {
     std::cout << "\n=== Network Information ===" << std::endl;
     std::cout << "Total routers: " << routers.size() << std::endl;
     std::cout << "Total links: " << links.size() << std::endl;

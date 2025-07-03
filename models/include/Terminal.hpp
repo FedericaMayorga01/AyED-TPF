@@ -11,15 +11,18 @@ class Terminal
     int routerAddress;
     NetworkSimulator* networkSimulator;
     std::vector<Terminal> terminalNodes;
-    Page* generatePage(void);
+    Page* generatePage();
 
   public:
     Terminal(int terminalAddress, int routerAddress, NetworkSimulator* networkSimulator);
-    int getTerminalAddress(void);
-    int getRouterAddress(void);
-    void addTerminalNode(Terminal terminalNode);
-    void sendPage(void);
-    void receivePage(Page* page);
+
+    [[nodiscard]] int getTerminalAddress() const;
+
+    [[nodiscard]] int getRouterAddress() const;
+
+    void addTerminalNode(const Terminal &terminalNode);
+    void sendPage();
+    void receivePage(const Page* page) const;
 };
 
 #endif // TERMINAL_HPP

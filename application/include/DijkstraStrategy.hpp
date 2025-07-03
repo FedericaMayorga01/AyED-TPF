@@ -7,7 +7,7 @@
 #include <list>
 #include <map>
 
-class DijkstraStrategy : public RoutingStrategy
+class DijkstraStrategy final : public RoutingStrategy
 {
 public:
   std::map<int, std::map<int, Link>> computeOptimalPaths(std::map<int, std::list<NeighborWaitPkg>> waitQueueRouter,

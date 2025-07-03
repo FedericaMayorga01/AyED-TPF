@@ -24,32 +24,32 @@ class Router
     std::map<int, Link> routingTable; // Maps destination address to next hop address
     std::map<int, std::list<Package*>>
         pendingPackagesByPageId; // Maps page ID to a list of packages that are pending for that page
-    bool amIEndNode;
+    bool amIEndNode{};
     NetworkSimulator* networkSimulator;
 
   public:
     Router(int routerAddress, int queueSize, int packageSize, NetworkSimulator* networkSimulator);
 
     // Getters
-    int getRouterAddress() const;
-    bool getAmIEndNode() const;
-    std::map<int, boost::circular_buffer<Package*>> getPackageQueuesByNeighbor() const;
+    [[nodiscard]] int getRouterAddress() const;
+    [[nodiscard]] bool getAmIEndNode() const;
+    [[nodiscard]] std::map<int, boost::circular_buffer<Package*>> getPackageQueuesByNeighbor() const;
 
     // Methods
-    void receivePage(Page* page);
-    std::list<Package*> splitPage(Page* page);
+    void receivePage(const Page* page);
+    std::list<Package*> splitPage(const Page* page) const;
     void sendPackage(int destAddress, Package* package);
     void receivePackage(int senderAddress, Package* package);
     void processQueues();
     void updateRoutingTable(bool initialize, int queueSize, std::map<int, Link> newRoutingTable);
     bool hasQueueFreeSpaceForPkg(int neighborAddress);
-    bool hasQueueFreeSpaceForPage(int neighborAddress, int pageSize) const;
+    [[nodiscard]] bool hasQueueFreeSpaceForPage(int neighborAddress, int pageSize) const;
 
     // End node methods
     bool checkPagesById(int pageId);
-    void printRouteTakenByPackage(Package* package);
+    static void printRouteTakenByPackage(const Package* package);
     Page* rebuildPage(int pageId);
-    void sendPage(Page* page);
+    void sendPage(Page* page) const;
 };
 
 #endif // ROUTER_HPP

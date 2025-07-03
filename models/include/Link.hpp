@@ -17,9 +17,9 @@ class Link
     ~Link();
 
     // Getters
-    int getSourceAddress() const;
-    int getNeighbor() const;
-    int getBandwidth() const;
+    [[nodiscard]] int getSourceAddress() const;
+    [[nodiscard]] int getNeighbor() const;
+    [[nodiscard]] int getBandwidth() const;
 
     // Setters
     void setBandwidth(int bandwidth);

@@ -8,6 +8,8 @@
 class RoutingStrategy
 {
 public:
+    virtual ~RoutingStrategy() = default;
+
     /**
      * @brief Virtual method to do strategy pattern, this function will be used in search algorithms.
      * @param waitQueueRouter A map where the key is the router address and the value is a list of NeighborWaitPkg.

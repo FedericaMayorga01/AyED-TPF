@@ -3,12 +3,11 @@
 #include "../include/Page.hpp"
 #include "../include/Router.hpp"
 #include <iostream>
-#include <math.h>
-#include <random>
+#include <cmath>
 #include <unistd.h>
 #include <vector>
 
-Terminal::Terminal(int terminalAddress, int routerAddress, NetworkSimulator* networkSimulator)
+Terminal::Terminal(const int terminalAddress, const int routerAddress, NetworkSimulator* networkSimulator)
 {
     this->terminalAddress = terminalAddress;
     this->routerAddress = routerAddress;
@@ -16,24 +15,24 @@ Terminal::Terminal(int terminalAddress, int routerAddress, NetworkSimulator* net
     this->terminalNodes = std::vector<Terminal>();
 }
 
-int Terminal::getTerminalAddress()
+int Terminal::getTerminalAddress() const
 {
     return terminalAddress;
 }
 
-int Terminal::getRouterAddress()
+int Terminal::getRouterAddress() const
 {
     return routerAddress;
 }
 
-void Terminal::addTerminalNode(Terminal terminalNode)
+void Terminal::addTerminalNode(const Terminal& terminalNode)
 {
     this->terminalNodes.emplace_back(terminalNode);
 }
 
 void Terminal::sendPage()
 {
-    Page* page = generatePage();
+    const Page* page = generatePage();
     std::cout << "Terminal " << page->getOrigTerminalAddress() << " sending page with ID " << page->getIdPage() << " of size "
               << page->getSizePage() << " bytes to terminal " << page->getDestTerminalAddress() << std::endl;
 
@@ -45,7 +44,7 @@ void Terminal::sendPage()
 Page* Terminal::generatePage()
 {
     static int idPage = 1;
-    int sizePage = std::rand() % 10240 + 256;
+    const int sizePage = std::rand() % 10240 + 256;
 
     int randomIndex = std::rand() % terminalNodes.size();
     int destTerminalAddress = terminalNodes[randomIndex].getTerminalAddress();
@@ -59,8 +58,7 @@ Page* Terminal::generatePage()
     return new Page(idPage++, sizePage, terminalAddress, destTerminalAddress);
 }
 
-void Terminal::receivePage(Page* page)
-{
+void Terminal::receivePage(const Page* page) const {
     // This method should handle the reception of a page
     std::cout << "Terminal " << terminalAddress << " received page with ID " << page->getIdPage() << " of size "
               << page->getSizePage() << " bytes from terminal " << page->getOrigTerminalAddress() << std::endl;

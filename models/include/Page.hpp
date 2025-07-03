@@ -11,10 +11,10 @@ private:
 public:
   Page(int idPage, int sizePage, int origTerminalAddress,
        int destTerminalAddress);
-  int getIdPage() const;
-  int getSizePage() const;
-  int getOrigTerminalAddress() const;
-  int getDestTerminalAddress() const;
+  [[nodiscard]] int getIdPage() const;
+  [[nodiscard]] int getSizePage() const;
+  [[nodiscard]] int getOrigTerminalAddress() const;
+  [[nodiscard]] int getDestTerminalAddress() const;
 };
 
 #endif // PAGE_HPP

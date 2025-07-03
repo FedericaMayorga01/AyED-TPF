@@ -22,15 +22,15 @@ class Administrator
     Administrator(NetworkSimulator*, RoutingStrategy*);
 
     // Getters
-    RoutingStrategy* getRoutingStrategy() const;
+    [[nodiscard]] RoutingStrategy* getRoutingStrategy() const;
 
     // Setters
     void setRoutingStrategy(RoutingStrategy* routingStrategy);
 
     // Methods
-    void recomputes(int cycle, std::map<int, std::list<Link>> globalRoutingTable);
-    std::map<int, std::list<NeighborWaitPkg>> collectRouterQueues();
-    void updateAllRoutingTables(int cycle, std::map<int, std::map<int, Link>> routingTables);
+    void recomputes(int cycle, const std::map<int, std::list<Link>> &globalRoutingTable);
+    std::map<int, std::list<NeighborWaitPkg>> collectRouterQueues() const;
+    void updateAllRoutingTables(int cycle, std::map<int, std::map<int, Link>> routingTables) const;
 };
 
 #endif // ADMINISTRATOR_HPP

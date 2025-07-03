@@ -35,7 +35,7 @@ class NetworkSimulator
     void initializeTerminals();
     void setupAdministrator();
     void run();
-    void printNetworkInfo();
+    void printNetworkInfo() const;
 };
 
 #endif // NETWORKSIMULATOR_HPP
