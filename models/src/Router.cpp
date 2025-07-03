@@ -131,6 +131,8 @@ void Router::processQueues()
     for (auto& entry : packageQueuesByNeighbor)
     {
         boost::circular_buffer<Package*>& queue = entry.second;
+        AddressUtils::shuffleQueue(queue); // Shuffle the queue to randomize processing order
+
         if (queue.empty()) {
             continue;
         }
@@ -139,11 +141,11 @@ void Router::processQueues()
 
         // Update the routing table
         Link link = routingTable[package->getDestTerminalAddress()];
-        int bandwidth = link.getBandwidth();
+        const int bandwidth = link.getBandwidth();
 
         sendPackage(link.getNeighbor(), package);
         std::cout << "Router " << routerAddress << " processed package with ID " << package->getIdPackage()
-                          << " from neighbor " << entry.first << std::endl;
+                          << " from pageId " << package->getIdPage() <<" from neighbor " << entry.first << std::endl;
 
         for (int i = 1; i <= bandwidth; i++)
         {
@@ -156,7 +158,7 @@ void Router::processQueues()
             Package* pkg = queue.front();
             sendPackage(link.getNeighbor(), pkg);
             std::cout << "Router " << routerAddress << " processed package with ID " << pkg->getIdPackage()
-                  << " from neighbor " << entry.first << std::endl;
+                 << " from pageID " << pkg->getIdPage() << " from neighbor " << entry.first << std::endl;
         }
     }
 

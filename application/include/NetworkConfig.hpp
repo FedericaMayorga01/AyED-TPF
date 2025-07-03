@@ -1,9 +1,13 @@
 #ifndef NETWORKCONFIG_HPP
 #define NETWORKCONFIG_HPP
 
+#include <random>
 #include <string>
 #include <vector>
+#include <boost/circular_buffer.hpp>
 #include <nlohmann/json.hpp>
+
+class Package;
 
 struct NeighborConfig {
     int neighbor_address;
@@ -58,6 +62,17 @@ public:
     // Get the router address that a terminal is connected to
     static int getRouterAddressForTerminal(int terminalAddress) {
         return createRouterAddress(getRouterNumber(terminalAddress));
+    }
+
+    static void shuffleQueue(boost::circular_buffer<Package*>& queue) {
+        std::vector temp(queue.begin(), queue.end());
+        std::random_device rd;
+        std::mt19937 g(rd());
+        std::shuffle(temp.begin(), temp.end(), g);
+        queue.clear();
+        for (Package* pkg : temp) {
+            queue.push_back(pkg);
+        }
     }
 };
 
