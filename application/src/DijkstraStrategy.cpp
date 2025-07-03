@@ -15,56 +15,56 @@ std::map<int, std::map<int, Link>> DijkstraStrategy::computeOptimalPaths(
 
     // ✅ ROUTER 256 - Routing table
     std::map<int, Link> router256Table;
-    router256Table[257] = Link(256, 257, 100); // Direct connection
-    router256Table[258] = Link(256, 258, 100); // Direct connection
-    router256Table[512] = Link(256, 512, 80);  // Direct connection
-    router256Table[768] = Link(256, 512, 80);  // Via 512 (256->512->768)
-    router256Table[769] = Link(256, 512, 80);  // Via 512 (256->512->768->769)
+    router256Table[257] = Link(256, 257, 4); // Direct connection
+    router256Table[258] = Link(256, 258, 4); // Direct connection
+    router256Table[512] = Link(256, 512, 2);  // Direct connection
+    router256Table[768] = Link(256, 512, 3);  // Via 512 (256->512->768)
+    router256Table[769] = Link(256, 512, 2);  // Via 512 (256->512->768->769)
     allRoutingTables[256] = router256Table;
 
     // ✅ ROUTER 257 - Routing table
     std::map<int, Link> router257Table;
-    router257Table[256] = Link(257, 256, 100); // Direct connection
-    router257Table[258] = Link(257, 256, 100); // Via 256 (257->256->258)
-    router257Table[512] = Link(257, 256, 100); // Via 256 (257->256->512)
-    router257Table[768] = Link(257, 256, 100); // Via 256 (257->256->512->768)
-    router257Table[769] = Link(257, 256, 100); // Via 256 (257->256->512->768->769)
+    router257Table[256] = Link(257, 256, 4); // Direct connection
+    router257Table[258] = Link(257, 256, 4); // Via 256 (257->256->258)
+    router257Table[512] = Link(257, 256, 4); // Via 256 (257->256->512)
+    router257Table[768] = Link(257, 256, 4); // Via 256 (257->256->512->768)
+    router257Table[769] = Link(257, 256, 4); // Via 256 (257->256->512->768->769)
     allRoutingTables[257] = router257Table;
 
     // ✅ ROUTER 258 - Routing table
     std::map<int, Link> router258Table;
-    router258Table[256] = Link(258, 256, 100); // Direct connection
-    router258Table[257] = Link(258, 256, 100); // Via 256 (258->256->257)
-    router258Table[512] = Link(258, 256, 100); // Via 256 (258->256->512)
-    router258Table[768] = Link(258, 256, 100); // Via 256 (258->256->512->768)
-    router258Table[769] = Link(258, 256, 100); // Via 256 (258->256->512->768->769)
+    router258Table[256] = Link(258, 256, 4); // Direct connection
+    router258Table[257] = Link(258, 256, 4); // Via 256 (258->256->257)
+    router258Table[512] = Link(258, 256, 4); // Via 256 (258->256->512)
+    router258Table[768] = Link(258, 256, 4); // Via 256 (258->256->512->768)
+    router258Table[769] = Link(258, 256, 4); // Via 256 (258->256->512->768->769)
     allRoutingTables[258] = router258Table;
 
     // ✅ ROUTER 512 - Routing table
     std::map<int, Link> router512Table;
-    router512Table[256] = Link(512, 256, 80); // Direct connection
-    router512Table[257] = Link(512, 256, 80); // Via 256 (512->256->257)
-    router512Table[258] = Link(512, 256, 80); // Via 256 (512->256->258)
-    router512Table[768] = Link(512, 768, 90); // Direct connection
-    router512Table[769] = Link(512, 768, 90); // Via 768 (512->768->769)
+    router512Table[256] = Link(512, 256, 2); // Direct connection
+    router512Table[257] = Link(512, 256, 2); // Via 256 (512->256->257)
+    router512Table[258] = Link(512, 256, 2); // Via 256 (512->256->258)
+    router512Table[768] = Link(512, 768, 3); // Direct connection
+    router512Table[769] = Link(512, 768, 3); // Via 768 (512->768->769)
     allRoutingTables[512] = router512Table;
 
     // ✅ ROUTER 768 - Routing table
     std::map<int, Link> router768Table;
-    router768Table[256] = Link(768, 512, 90);  // Via 512 (768->512->256)
-    router768Table[257] = Link(768, 512, 90);  // Via 512 (768->512->256->257)
-    router768Table[258] = Link(768, 512, 90);  // Via 512 (768->512->256->258)
-    router768Table[512] = Link(768, 512, 90);  // Direct connection
-    router768Table[769] = Link(768, 769, 100); // Direct connection
+    router768Table[256] = Link(768, 512, 3);  // Via 512 (768->512->256)
+    router768Table[257] = Link(768, 512, 3);  // Via 512 (768->512->256->257)
+    router768Table[258] = Link(768, 512, 3);  // Via 512 (768->512->256->258)
+    router768Table[512] = Link(768, 512, 3);  // Direct connection
+    router768Table[769] = Link(768, 769, 4); // Direct connection
     allRoutingTables[768] = router768Table;
 
     // ✅ ROUTER 769 - Routing table
     std::map<int, Link> router769Table;
-    router769Table[256] = Link(769, 768, 100); // Via 768 (769->768->512->256)
-    router769Table[257] = Link(769, 768, 100); // Via 768 (769->768->512->256->257)
-    router769Table[258] = Link(769, 768, 100); // Via 768 (769->768->512->256->258)
-    router769Table[512] = Link(769, 768, 100); // Via 768 (769->768->512)
-    router769Table[768] = Link(769, 768, 100); // Direct connection
+    router769Table[256] = Link(769, 768, 4); // Via 768 (769->768->512->256)
+    router769Table[257] = Link(769, 768, 4); // Via 768 (769->768->512->256->257)
+    router769Table[258] = Link(769, 768, 4); // Via 768 (769->768->512->256->258)
+    router769Table[512] = Link(769, 768, 4); // Via 768 (769->768->512)
+    router769Table[768] = Link(769, 768, 4); // Direct connection
     allRoutingTables[769] = router769Table;
 
     // ✅ Debug output

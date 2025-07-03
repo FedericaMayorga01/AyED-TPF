@@ -147,7 +147,7 @@ void Router::processQueues()
         std::cout << "Router " << routerAddress << " processed package with ID " << package->getIdPackage()
                           << " from pageId " << package->getIdPage() <<" from neighbor " << entry.first << std::endl;
 
-        for (int i = 1; i <= bandwidth; i++)
+        for (int i = 1; i < bandwidth; i++)
         {
             queue.pop_front(); // Remove the package from the queue
 
