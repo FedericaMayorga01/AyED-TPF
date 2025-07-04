@@ -33,7 +33,7 @@ void Terminal::addTerminalNode(const Terminal& terminalNode)
 void Terminal::sendPage()
 {
     const Page* page = generatePage();
-    std::cout << "Terminal " << page->getOrigTerminalAddress() << " sending page with ID " << page->getIdPage() << " of size "
+    std::cout << "\033[1m\033[33mSend Page: \033[0m" <<"Terminal " << page->getOrigTerminalAddress() << " sending page with ID " << page->getIdPage() << " of size "
               << page->getSizePage() << " bytes to terminal " << page->getDestTerminalAddress() << std::endl;
 
     Router* router = networkSimulator->getRouterByAddress(routerAddress);

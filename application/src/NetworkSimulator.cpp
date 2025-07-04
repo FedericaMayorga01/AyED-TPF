@@ -114,7 +114,7 @@ void NetworkSimulator::initializeNetwork()
     }
 
     // Initialize routers
-    std::cout << "Initializing routers..." << std::endl;
+    std::cout << std::endl << "Initializing routers..." << std::endl;
     for (int address : routerAddresses)
     {
         Router router(address, config.package_size, this);
@@ -152,7 +152,7 @@ void NetworkSimulator::initializeNetwork()
     }
 
     // Initialize links
-    std::cout << "Initializing links..." << std::endl;
+    std::cout << "Initializing links..." << std::endl << std::endl;
     for (const auto& nodeConfig : config.nodes)
     {
         for (const auto& neighbor : nodeConfig.neighbors)
@@ -164,11 +164,12 @@ void NetworkSimulator::initializeNetwork()
             //          << std::endl;
         }
     }
-
+    std::cout << "-----------------------------------" << std::endl;
     std::cout << "Network initialization completed:" << std::endl;
     std::cout << "  - Routers: " << routers.size() - terminals.size() << std::endl;
     std::cout << "  - Links: " << links.size()/2 << std::endl;
     std::cout << "  - Terminals: " << terminals.size() << std::endl;
+    std::cout << "-----------------------------------" << std::endl << std::endl;
 }
 
 void NetworkSimulator::setupAdministrator()
@@ -200,17 +201,17 @@ void NetworkSimulator::setupAdministrator()
         //std::cout << "GLOBAL_TABLE[TERMINALS]: Adding link to global routing table for terminal " << link.getSourceAddress() << std::endl;
     }
 
-    std::cout << "Administrator initialized with DijkstraStrategy" << std::endl;
+    std::cout << "Administrator initialized with: \033[1mDijkstraStrategy\033[0m" << std::endl;
     std::cout << "Global routing table contains " << globalTable.size() << " entries" << std::endl;
 }
 
 void NetworkSimulator::run()
 {
-    std::cout << "\n=== Starting Network Simulation ===" << std::endl;
+    std::cout << "\n>>>>>>>>>>===== Starting Network Simulation =====<<<<<<<<<<" << std::endl;
 
     for (int cycle = 1; cycle <= config.total_cycle; cycle++)
     {
-        std::cout << "\n================ <<< Cycle " << cycle << " >>> ================" << std::endl;
+        std::cout << "\n\033[1m============================== <<< Cycle " << cycle << " >>> ==============================\033[0m" << std::endl;
 
         if (cycle % 2)
         {
@@ -239,24 +240,25 @@ void NetworkSimulator::run()
         // Process each router
         for (auto& router : routers)
         {
-            std::cout << "Processing router " << router.getRouterAddress() << " queues..." << std::endl;
+            std::cout << "\033[1m\033[36mProcess Queues: \033[0m" <<"Processing router " << router.getRouterAddress() << " queues..." << std::endl;
             router.processQueues();
         }
 
-        std::cout << "############## Cycle " << cycle << " completed ##############" << std::endl;
+        std::cout << "\033[1m############################# Cycle " << cycle << " completed #############################\033[0m" << std::endl;
         updatePendingCurrentCycles();
         incrementCurrentCycle();
     }
 
-    std::cout << "\n========= Simulation Completed =========" << std::endl;
+    std::cout << "\n\033[32m=========================== Simulation Completed ===========================\033[0m" << std::endl;
 }
 
 void NetworkSimulator::printNetworkInfo() const {
-    std::cout << "\n========= Network Information =========" << std::endl;
+    std::cout << "\n\033[36m========= Network Information =========\033[0m" << std::endl;
     std::cout << "Total routers: " << routers.size() - terminals.size() << std::endl;
     std::cout << "Total links: " << links.size() << std::endl;
     std::cout << "Total terminals: " << terminals.size() << std::endl;
     std::cout << "Total cycles configured: " << config.total_cycle << std::endl;
+    std::cout << "\033[36m=======================================\033[0m" << std::endl;
 
     //std::cout << "\nRouter details:" << std::endl;
     //for (const auto& router : routers)

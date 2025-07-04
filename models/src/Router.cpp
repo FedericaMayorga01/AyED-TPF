@@ -32,10 +32,10 @@ std::map<int, boost::circular_buffer<Package *> > Router::getPackageQueuesByNeig
 
 void Router::receivePage(const Page *page) {
     if (hasQueueFreeSpaceForPage(page->getOrigTerminalAddress(), page->getSizePage())) {
-        std::cout << "Router " << routerAddress << " received page with ID " << page->getIdPage() << " from terminal "
+        std::cout << "\033[1m\033[32mReceive Page: \033[0m" << "Router " << routerAddress << " received page with ID " << page->getIdPage() << " from terminal "
                 << page->getOrigTerminalAddress() << std::endl;
     } else {
-        std::cout << "Router " << routerAddress << " has no free space for page with ID " << page->getIdPage()
+        std::cout << "\033[1m\033[31mNo Space: \033[0m" << "Router " << routerAddress << " has no free space for page with ID " << page->getIdPage()
                 << " from terminal " << page->getOrigTerminalAddress() << std::endl;
         return; // No space to process this page
     }
@@ -103,7 +103,7 @@ void Router::receivePackage(int senderAddress, Package *package) {
         // Add the package to the queue of the corresponding neighbor
         packageQueuesByNeighbor[senderAddress].push_back(package);
     } else {
-        std::cout << "Router " << routerAddress << " has no free space for package with ID " << package->getIdPackage()
+        std::cout << "\033[1mNo Space: \033[0m" << "Router " << routerAddress << " has no free space for package with ID " << package->getIdPackage()
                 << " from Router " << senderAddress << std::endl;
     }
 }
@@ -251,7 +251,7 @@ bool Router::checkPagesById(int pageId) {
 
 void Router::printRouteTakenByPackage(const Package *package) {
     // This method should print the route taken by each package in the pending packages
-    std::cout << "  Package ID: " << package->getIdPackage() << " | Route taken: ";
+    std::cout << "\033[1m\033[35m  Package ID: \033[0m" << package->getIdPackage() << "\033[1m\033[35m | Route taken: \033[0m";
 
     std::cout << std::endl;
     // Print the route taken by the package
@@ -271,7 +271,7 @@ void Router::printRouteTakenByPackage(const Package *package) {
 }
 
 Page *Router::rebuildPage(const int pageId) {
-    std::cout << "Router " << routerAddress << ": Rebuilding page with ID " << pageId << std::endl;
+    std::cout << "\033[1m\033[35mRebuild Page: \033[0m" <<"Router " << routerAddress << ": Rebuilding page with ID " << pageId << std::endl;
     // This method should rebuild a page from the pending packages
     std::list<Package *> pendingPackages = pendingPackagesByPageId[pageId];
     if (pendingPackages.empty()) {
