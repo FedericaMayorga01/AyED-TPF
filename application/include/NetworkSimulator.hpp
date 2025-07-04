@@ -13,28 +13,45 @@
 #include <set>
 #include <vector>
 
-class NetworkSimulator
-{
-  private:
+class NetworkSimulator {
+private:
     std::vector<Router> routers;
     std::vector<Terminal> terminals;
     std::vector<Link> links;
     std::unique_ptr<Administrator> administrator;
     NetworkConfig config;
-    std::map<int, std::list<Link>> globalTable;
+    std::map<int, std::list<Link> > globalTable;
+    int currentCycle;
 
-  public:
-    NetworkSimulator(const std::string& configFile);
-    Router* getRouterByAddress(int address);
-    Terminal* getTerminalByAddress(int address);
-    std::vector<Router>& getRouters();
-    int getQueueSize() const;
-    int getCycle() const;
-    void loadConfiguration(const std::string& configFile);
+public:
+    NetworkSimulator(const std::string &configFile, int currentCycle);
+
+    Router *getRouterByAddress(int address);
+
+    Terminal *getTerminalByAddress(int address);
+
+    std::vector<Router> &getRouters();
+
+    [[nodiscard]] int getQueueSize() const;
+
+    [[nodiscard]] int getCycle() const;
+
+    int getCurrentCycle() const;
+
+    void incrementCurrentCycle();
+
+    void updatePendingCurrentCycles() const;
+
+    void loadConfiguration(const std::string &configFile);
+
     void initializeNetwork();
+
     void initializeTerminals();
+
     void setupAdministrator();
+
     void run();
+
     void printNetworkInfo() const;
 };
 

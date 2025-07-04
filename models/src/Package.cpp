@@ -1,8 +1,19 @@
 #include "../include/Package.hpp"
 #include <list>
 
+Package::Package(int idPackage, int idPage, int sizePackage, int amountOfPackages, int origTerminalAddress,
+    int destTerminalAddress) {
+    this->idPackage = idPackage;
+    this->idPage = idPage;
+    this->sizePackage = sizePackage;
+    this->amountOfPackages = amountOfPackages;
+    this->origTerminalAddress = origTerminalAddress;
+    this->destTerminalAddress = destTerminalAddress;
+    this->cycleCounter = 1;
+}
+
 Package::Package(const int idPackage, const int idPage, const int sizePackage, const int amountOfPackages, const int origTerminalAddress,
-                 const int destTerminalAddress)
+                 const int destTerminalAddress, const int cycleCounter)
 {
     this->idPackage = idPackage;
     this->idPage = idPage;
@@ -10,6 +21,7 @@ Package::Package(const int idPackage, const int idPage, const int sizePackage, c
     this->amountOfPackages = amountOfPackages;
     this->origTerminalAddress = origTerminalAddress;
     this->destTerminalAddress = destTerminalAddress;
+    this->cycleCounter = cycleCounter;
 }
 
 int Package::getIdPackage() const
@@ -50,6 +62,14 @@ int Package::getCycleCounter() const
 std::list<int> Package::getRouteTaken() const
 {
     return routeTaken;
+}
+
+void Package::setCurrentCycle(int currentCycle) {
+    this->cycleCounter = currentCycle;
+}
+
+void Package::incrementCycleCounter() {
+    cycleCounter += 1;
 }
 
 void Package::addToRouteTaken(const int address)

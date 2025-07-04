@@ -28,7 +28,7 @@ class Router
     NetworkSimulator* networkSimulator;
 
   public:
-    Router(int routerAddress, int queueSize, int packageSize, NetworkSimulator* networkSimulator);
+    Router(int routerAddress, int packageSize, NetworkSimulator* networkSimulator);
 
     // Getters
     [[nodiscard]] int getRouterAddress() const;

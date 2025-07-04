@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include <utility>
 
-Router::Router(int routerAddress, int queueSize, int packageSize, NetworkSimulator *networkSimulator) {
+Router::Router(int routerAddress, int packageSize, NetworkSimulator *networkSimulator) {
     this->packageSize = packageSize;
     this->routerAddress = routerAddress;
     this->networkSimulator = networkSimulator;
@@ -58,8 +58,8 @@ std::list<Package *> Router::splitPage(const Page *page) const {
 
     std::list<Package *> packages;
     for (int packageId = 1; packageId <= numberOfPackages; packageId++) {
-        auto *package = new Package(packageId, page->getIdPage(), packageSize, numberOfPackages,
-                                    page->getOrigTerminalAddress(), page->getDestTerminalAddress());
+        auto* package = new Package(packageId, page->getIdPage(), packageSize, numberOfPackages,
+                                      page->getOrigTerminalAddress(), page->getDestTerminalAddress(), networkSimulator-> getCurrentCycle());
         // Add current router to the route
         package->addToRouteTaken(page->getOrigTerminalAddress());
         package->addToRouteTaken(routerAddress);
@@ -97,6 +97,7 @@ void Router::receivePackage(int senderAddress, Package *package) {
     package->addToRouteTaken(routerAddress);
 
     if (hasQueueFreeSpaceForPkg(senderAddress)) {
+        package->incrementCycleCounter();
         std::cout << "Router " << routerAddress << " received package with ID " << package->getIdPackage()
                 << " from Router " << senderAddress << std::endl;
         // Add the package to the queue of the corresponding neighbor
@@ -124,19 +125,35 @@ void Router::processQueues() {
         int i = 0;
         do {
             // Update the routing table
-            sendPackage(link.getNeighbor(), package);
-            std::cout << "Router " << routerAddress << " processed package with ID " << package->getIdPackage()
-                    << " from pageId " << package->getIdPage() << " from neighbor " << entry.first << std::endl;
-            Package lastProcessedPackage = *package;
-            queue.pop_front();
-            package = queue.front();
-            if (queue.empty())
-                break; // Exit if the queue is empty
+            std::cout << "Package with ID " << package->getIdPackage() << " is being processed by Router "
+                 << routerAddress << " is on cycle " << package->getCycleCounter() << " and networkSimulator is on "<< networkSimulator->getCurrentCycle() << std::endl;
+            if (package->getCycleCounter() < networkSimulator -> getCurrentCycle()){
+                sendPackage(link.getNeighbor(), package);
 
-            if (lastProcessedPackage.getDestTerminalAddress() != package->getDestTerminalAddress()) {
-                link = routingTable[package->getDestTerminalAddress()];
-                bandwidth = link.getBandwidth();
+                Package lastProcessedPackage = *package;
+                queue.pop_front();
+                package = queue.front();
+                if (queue.empty())
+                    break; // Exit if the queue is empty
+
+                if (lastProcessedPackage.getDestTerminalAddress() != package->getDestTerminalAddress()) {
+                    link = routingTable[package->getDestTerminalAddress()];
+                    bandwidth = link.getBandwidth();
+                }
+            } else {
+                std::cout << "Package with ID " << package->getIdPackage() << " is still in cycle " << package->getCycleCounter()
+                      << ", moving to the end of the queue." << std::endl;
+                Package* lastProcessedPackage = queue.front();
+                queue.pop_front();
+                queue.push_back(lastProcessedPackage);
+
+                package = queue.front();
+                if (queue.back()->getDestTerminalAddress() != package->getDestTerminalAddress()) {
+                    link = routingTable[package->getDestTerminalAddress()];
+                    bandwidth = link.getBandwidth();
+                }
             }
+
             i++;
         } while (bandwidth != 0 && i < bandwidth);
 

@@ -4,9 +4,8 @@
 #include <list>
 #include <string>
 
-class Package
-{
-  private:
+class Package {
+private:
     int idPackage;
     int idPage;
     int sizePackage;
@@ -16,18 +15,34 @@ class Package
     int cycleCounter{};
     std::list<int> routeTaken;
 
-  public:
+public:
     Package(int idPackage, int idPage, int sizePackage, int amountOfPackages, int origTerminalAddress,
             int destTerminalAddress);
 
+    Package(int idPackage, int idPage, int sizePackage, int amountOfPackages, int origTerminalAddress,
+            int destTerminalAddress, int cycleCounter);
+
+
     [[nodiscard]] int getIdPackage() const;
+
     [[nodiscard]] int getIdPage() const;
+
     [[nodiscard]] int getSizePackage() const;
+
     [[nodiscard]] int getAmountOfPackages() const;
+
     [[nodiscard]] int getOrigTerminalAddress() const;
+
     [[nodiscard]] int getDestTerminalAddress() const;
+
     [[nodiscard]] int getCycleCounter() const;
+
     [[nodiscard]] std::list<int> getRouteTaken() const;
+
+    void setCurrentCycle(int currentCycle);
+
+    void incrementCycleCounter();
+
     void addToRouteTaken(int address);
 
     // override toString

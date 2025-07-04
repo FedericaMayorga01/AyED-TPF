@@ -12,7 +12,7 @@ int main(const int argc, char* argv[]) {
         std::cout << "Network Simulator Starting..." << std::endl;
         std::cout << "Using config file: " << configFile << std::endl;
         
-        NetworkSimulator simulator(configFile);
+        NetworkSimulator simulator(configFile, 1);
         simulator.printNetworkInfo();
         simulator.run();
         

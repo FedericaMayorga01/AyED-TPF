@@ -3,8 +3,9 @@
 #include <iostream>
 #include <vector>
 
-NetworkSimulator::NetworkSimulator(const std::string& configFile)
+NetworkSimulator::NetworkSimulator(const std::string& configFile, int currentCycle)
 {
+    this -> currentCycle = currentCycle;
     loadConfiguration(configFile);
     initializeNetwork();
     setupAdministrator();
@@ -18,6 +19,27 @@ int NetworkSimulator::getQueueSize() const
 int NetworkSimulator::getCycle() const
 {
     return config.total_cycle;
+}
+
+int NetworkSimulator::getCurrentCycle() const {
+    return currentCycle;
+}
+
+void NetworkSimulator::incrementCurrentCycle() {
+    currentCycle += 1;
+}
+
+void NetworkSimulator::updatePendingCurrentCycles() const {
+    for (auto& router : routers)
+    {
+        for (auto& entry : router.getPackageQueuesByNeighbor())
+        {
+            for (auto& package : entry.second)
+            {
+                package->setCurrentCycle(currentCycle);
+            }
+        }
+    }
 }
 
 std::vector<Router>& NetworkSimulator::getRouters()
@@ -94,7 +116,7 @@ void NetworkSimulator::initializeNetwork()
     // Initialize routers
     for (int address : routerAddresses)
     {
-        Router router(address, config.queue_size, config.package_size, this);
+        Router router(address, config.package_size, this);
         routers.push_back(router);
 
         std::cout << "Created router with address: " << address << " (Router #"
@@ -220,6 +242,8 @@ void NetworkSimulator::run()
         }
 
         std::cout << "Cycle " << cycle << " completed" << std::endl;
+        updatePendingCurrentCycles();
+        incrementCurrentCycle();
     }
 
     std::cout << "\n=== Simulation Completed ===" << std::endl;
