@@ -77,7 +77,6 @@ void NetworkSimulator::initializeNetwork()
     {
         if (AddressUtils::isRouter(nodeConfig.node_address))
         {
-            routerAddresses.insert(nodeConfig.node_address);
             globalTable[nodeConfig.node_address] = std::list<Link>();
             std::cout << "Found router: " << nodeConfig.node_address << " (Router #"
                       << AddressUtils::getRouterNumber(nodeConfig.node_address) << ")" << std::endl;
@@ -89,6 +88,7 @@ void NetworkSimulator::initializeNetwork()
                       << AddressUtils::getRouterNumber(nodeConfig.node_address) << ", Terminal #"
                       << AddressUtils::getTerminalNumber(nodeConfig.node_address) << ")" << std::endl;
         }
+        routerAddresses.insert(nodeConfig.node_address);
     }
 
     // Initialize routers
@@ -160,12 +160,20 @@ void NetworkSimulator::setupAdministrator()
         std::cout << "Adding link from " << link.getSourceAddress()
                   << " to neighbor " << link.getNeighbor()
                   << " with bandwidth " << link.getBandwidth() << std::endl;
-        // Only add router-to-router links to global routing table
-        if (AddressUtils::isRouter(link.getSourceAddress()) && AddressUtils::isRouter(link.getNeighbor()))
+
+        if (AddressUtils::isRouter(link.getSourceAddress()))
         {
-            std::cout << "Adding link to global routing table for router " << link.getSourceAddress() << std::endl;
+            std::cout << "GLOBAL_TABLE[ROUTERS]: Adding link to global routing table for node " << link.getSourceAddress() << std::endl;
             globalTable[link.getSourceAddress()].push_back(link);
+            continue;
         }
+
+        if (AddressUtils::isTerminal(link.getNeighbor())) {
+            continue;
+        }
+
+        globalTable[link.getSourceAddress()].push_back(link);
+        std::cout << "GLOBAL_TABLE[TERMINALS]: Adding link to global routing table for terminal " << link.getSourceAddress() << std::endl;
     }
 
     std::cout << "Administrator initialized with DijkstraStrategy" << std::endl;
