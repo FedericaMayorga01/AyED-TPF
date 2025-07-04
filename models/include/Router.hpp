@@ -21,7 +21,7 @@ class Router
     int packageSize; // Number of packages to divade a page into
     std::map<int, boost::circular_buffer<Package*>>
         packageQueuesByNeighbor;      // Maps neighbor address to its package queue
-    std::map<int, Link> routingTable; // Maps destination address to next hop address
+    std::map<int, Link> routingTable; // Maps terminal destination address to next hop address
     std::map<int, std::list<Package*>>
         pendingPackagesByPageId; // Maps page ID to a list of packages that are pending for that page
     bool amIEndNode{};

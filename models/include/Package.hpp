@@ -2,6 +2,7 @@
 #define PACKAGE_HPP
 
 #include <list>
+#include <string>
 
 class Package
 {
@@ -28,6 +29,9 @@ class Package
     [[nodiscard]] int getCycleCounter() const;
     [[nodiscard]] std::list<int> getRouteTaken() const;
     void addToRouteTaken(int address);
+
+    // override toString
+    std::string toString() const;
 };
 
 #endif // PACKAGE_HPP

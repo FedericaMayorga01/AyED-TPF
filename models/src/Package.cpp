@@ -56,3 +56,20 @@ void Package::addToRouteTaken(const int address)
 {
     this->routeTaken.push_back(address);
 }
+
+std::string Package::toString() const {
+    std::string routeStr;
+    for (const auto& addr : routeTaken) {
+        if (!routeStr.empty()) {
+            routeStr += " -> ";
+        }
+        routeStr += std::to_string(addr);
+    }
+    return "Package ID: " + std::to_string(idPackage) +
+           ", Page ID: " + std::to_string(idPage) +
+           ", Size: " + std::to_string(sizePackage) +
+           ", Amount: " + std::to_string(amountOfPackages) +
+           ", Origin: " + std::to_string(origTerminalAddress) +
+           ", Destination: " + std::to_string(destTerminalAddress) +
+           ", Route Taken: [" + routeStr + "]";
+}
