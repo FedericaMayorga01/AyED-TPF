@@ -31,6 +31,7 @@ class Administrator
     void recomputes(int cycle, const std::map<int, std::list<Link>> &globalRoutingTable);
     std::map<int, std::list<NeighborWaitPkg>> collectRouterQueues() const;
     void updateAllRoutingTables(int cycle, std::map<int, std::map<int, Link>> routingTables) const;
+    double calculatePathWeight(int queueSize, int bandwidth) const;
 };
 
 #endif // ADMINISTRATOR_HPP

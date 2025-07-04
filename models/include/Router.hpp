@@ -24,7 +24,7 @@ class Router
     std::map<int, Link> routingTable; // Maps terminal destination address to next hop address
     std::map<int, std::list<Package*>>
         pendingPackagesByPageId; // Maps page ID to a list of packages that are pending for that page
-    bool amIEndNode{};
+    bool amIEndNode;
     NetworkSimulator* networkSimulator;
 
   public:

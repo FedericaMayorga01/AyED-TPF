@@ -1,77 +1,130 @@
 #include "../include/DijkstraStrategy.hpp"
+
+#include <iostream>
+
 #include "../../models/include/Link.hpp"
 #include "../../models/include/NeighborWaitPkg.hpp"
 #include <list>
 #include <map>
-#include <iostream>
+#include <queue>
+#include <limits>
+#include <ostream>
+#include <set>
+#include <unordered_map>
+#include <stdexcept>
 
 std::map<int, std::map<int, Link>> DijkstraStrategy::computeOptimalPaths(
-    std::map<int, std::list<NeighborWaitPkg>> waitQueueRouter, std::map<int, std::list<Link>> globalRoutingTable)
+    std::map<int, std::list<NeighborWaitPkg>> waitQueueRouter,
+    std::map<int, std::list<Link>> globalRoutingTable,
+    const Administrator* admin)
 {
-
-    std::cout << "DijkstraStrategy: Computing mocked optimal paths..." << std::endl;
+    // Validates the administrator pointer
+    if (!admin) {
+        throw std::invalid_argument("Administrator cannot be null");
+    }
 
     std::map<int, std::map<int, Link>> allRoutingTables;
 
-    // ✅ ROUTER 256 - Routing table
-    std::map<int, Link> router256Table;
-    router256Table[257] = Link(256, 257, 4); // Direct connection
-    router256Table[258] = Link(256, 258, 4); // Direct connection
-    router256Table[769] = Link(256, 512, 2);  // Via 512 (256->512->768->769)
-    allRoutingTables[256] = router256Table;
+    // Lookup tables for wait queues and links
+    std::map<int, std::unordered_map<int, int>> waitQueueLookup;
+    std::map<int, std::unordered_map<int, Link>> linkLookup;
 
-    // ✅ ROUTER 257 - Routing table
-    std::map<int, Link> router257Table;
-    router257Table[258] = Link(257, 256, 4); // Via 256 (257->256->258)
-    router257Table[769] = Link(257, 256, 4); // Via 256 (257->256->512->768->769)
-    allRoutingTables[257] = router257Table;
-
-    // ✅ ROUTER 258 - Routing table
-    std::map<int, Link> router258Table;
-    router258Table[257] = Link(258, 256, 4); // Via 256 (258->256->257)
-    router258Table[769] = Link(258, 256, 4); // Via 256 (258->256->512->768->769)
-    allRoutingTables[258] = router258Table;
-
-    // ✅ ROUTER 512 - Routing table
-    std::map<int, Link> router512Table;
-    router512Table[257] = Link(512, 256, 2); // Via 256 (512->256->257)
-    router512Table[258] = Link(512, 256, 2); // Via 256 (512->256->258)
-    router512Table[769] = Link(512, 768, 3); // Via 768 (512->768->769)
-    allRoutingTables[512] = router512Table;
-
-    // ✅ ROUTER 768 - Routing table
-    std::map<int, Link> router768Table;
-    router768Table[257] = Link(768, 512, 3);  // Via 512 (768->512->256->257)
-    router768Table[258] = Link(768, 512, 3);  // Via 512 (768->512->256->258)
-    router768Table[769] = Link(768, 769, 4); // Direct connection
-    allRoutingTables[768] = router768Table;
-
-    // ✅ ROUTER 769 - Routing table
-    std::map<int, Link> router769Table;
-    router769Table[257] = Link(769, 768, 4); // Via 768 (769->768->512->256->257)
-    router769Table[258] = Link(769, 768, 4); // Via 768 (769->768->512->256->258)
-    allRoutingTables[769] = router769Table;
-
-    // ✅ Debug output
-    std::cout << "DijkstraStrategy: Generated routing tables for " << allRoutingTables.size()
-              << " routers:" << std::endl;
-
-    for (const auto& routerEntry : allRoutingTables)
-    {
-        int routerAddr = routerEntry.first;
-        const auto& table = routerEntry.second;
-
-        std::cout << "  Router " << routerAddr << " has " << table.size() << " routes:" << std::endl;
-
-        for (const auto& route : table)
-        {
-            int dest = route.first;
-            const Link& link = route.second;
-            std::cout << "    To " << dest << " via " << link.getNeighbor() << " (BW: " << link.getBandwidth() << ")"
-                      << std::endl;
+    // Lookup for wait queues
+    for (const auto& [routerId, neighbors] : waitQueueRouter) {
+        for (const NeighborWaitPkg& nwp : neighbors) {
+            waitQueueLookup[routerId][nwp.getNeighbor()] = nwp.getWaitPkg();
         }
     }
 
+    // Lookup for links in the global routing table
+    for (const auto& [routerId, links] : globalRoutingTable) {
+        for (const Link& link : links) {
+            linkLookup[routerId][link.getNeighbor()] = link;
+        }
+    }
+
+    for (const auto& routerPair : globalRoutingTable) {
+        int source = routerPair.first;
+        std::map<int, double> dist;
+        std::map<int, int> prev;
+        std::map<int, int> firstHop;
+        std::set<int> visited;
+
+        // Initialize distances
+        for (const auto& router : globalRoutingTable)
+            dist[router.first] = std::numeric_limits<double>::infinity();
+        dist[source] = 0;
+
+        // Min-heap: (cost, router)
+        using QElem = std::pair<double, int>;
+        std::priority_queue<QElem, std::vector<QElem>, std::greater<>> priorityQueue;
+        priorityQueue.emplace(0, source);
+
+        while (!priorityQueue.empty()) {
+            auto [cost, currentRouter] = priorityQueue.top();
+            priorityQueue.pop();
+
+            if (visited.count(currentRouter)) continue;
+            visited.insert(currentRouter);
+
+            for (const Link& link : globalRoutingTable[currentRouter]) {
+                int neighborRouter = link.getNeighbor();
+
+                int queueSize = 0;
+                auto routerIt = waitQueueLookup.find(currentRouter);
+                if (routerIt != waitQueueLookup.end()) {
+                    auto neighborIt = routerIt->second.find(neighborRouter);
+                    if (neighborIt != routerIt->second.end()) {
+                        queueSize = neighborIt->second;
+                    }
+                }
+
+                int bandwidth = link.getBandwidth();
+
+                double linkCost;
+                try {
+                    linkCost = admin->calculatePathWeight(queueSize, bandwidth);
+                } catch (const std::exception& e) {
+                    linkCost = std::numeric_limits<double>::infinity();
+                    continue;
+                }
+
+                double newCost = cost + linkCost;
+                if (newCost < dist[neighborRouter]) {
+                    dist[neighborRouter] = newCost;
+                    prev[neighborRouter] = currentRouter;
+                    // Set first hop: if coming from source, it's v; else, inherit
+                    firstHop[neighborRouter] = (currentRouter == source) ? neighborRouter : firstHop[currentRouter];
+                    priorityQueue.emplace(newCost, neighborRouter);
+                }
+            }
+        }
+
+        // Build the routing table for this source router
+        std::map<int, Link> routingTable;
+        for (const auto& routerEntry : globalRoutingTable) {
+            int dest = routerEntry.first;
+            if (dest == source) continue;
+
+            if (firstHop.count(dest)) {
+                std::cout << "Router " << source << " found path to " << dest << " via first hop " << firstHop[dest] << std::endl;
+                int nextHop = firstHop[dest];
+                std::cout << "Router " << source << " found nextHop " << nextHop << std::endl;
+
+                auto routerLinks = linkLookup.find(source);
+                if (routerLinks != linkLookup.end()) {
+                    auto linkIt = routerLinks->second.find(nextHop);
+                    if (linkIt != routerLinks->second.end()) {
+                        std::cout << "Router " << source << " has links to neighbors: "
+                                  << nextHop << " with bandwidth " << linkIt->second.getBandwidth() << std::endl;
+                        routingTable[dest] = linkIt->second;
+                    }
+                }
+            }
+        }
+        allRoutingTables[source] = routingTable;
+        std::cout << "Router " << source << " has routing table with " << routingTable.size() << " entries." << std::endl;
+    }
     return allRoutingTables;
 }
 

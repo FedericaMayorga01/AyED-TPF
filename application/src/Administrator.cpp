@@ -26,7 +26,7 @@ void Administrator::setRoutingStrategy(RoutingStrategy* routingStrategy)
 // Methods
 void Administrator::recomputes(int cycle, const std::map<int, std::list<Link>> &globalRoutingTable)
 {
-    const auto result = routingStrategy->computeOptimalPaths(collectRouterQueues(), globalRoutingTable);
+    const auto result = routingStrategy->computeOptimalPaths(collectRouterQueues(), globalRoutingTable, this);
     updateAllRoutingTables(cycle, result);
 }
 
@@ -51,4 +51,8 @@ void Administrator::updateAllRoutingTables(int cycle, std::map<int, std::map<int
     {
         router.updateRoutingTable(initialize, networkSimulator->getQueueSize(), routingTables[router.getRouterAddress()]);
     }
+}
+
+double Administrator::calculatePathWeight(int queueSize, int bandwidth) const {
+    return 1.0 + std::ceil(static_cast<double>(queueSize) / bandwidth);
 }
