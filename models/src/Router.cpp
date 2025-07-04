@@ -48,7 +48,7 @@ void Router::receivePage(const Page *page) {
         packageQueuesByNeighbor[page->getOrigTerminalAddress()].push_back(pkg);
         std::cout << "Router " << routerAddress << " added package with ID "
                 << packageQueuesByNeighbor[page->getOrigTerminalAddress()].back()->getIdPackage()
-                << " to queue for neighbor (terminal)" << page->getOrigTerminalAddress() << std::endl;
+                << " to queue for neighbor (terminal) " << page->getOrigTerminalAddress() << std::endl;
     }
 }
 
@@ -191,10 +191,10 @@ void Router::updateRoutingTable(bool initialize, int queueSize, std::map<int, Li
     routingTable = std::move(newRoutingTable);
 
     // print new routing table complete with details
-    std::cout << "Router " << routerAddress << " routing table: " << std::endl;
+    //std::cout << "Router " << routerAddress << " routing table: " << std::endl;
     for (auto &[fst, snd]: routingTable) {
-        std::cout << "Terminal Dest: " << fst << ", Next Hop: " << snd.getNeighbor()
-                << ", Bandwidth: " << snd.getBandwidth() << std::endl;
+        //std::cout << "Terminal Dest: " << fst << ", Next Hop: " << snd.getNeighbor()
+        //        << ", Bandwidth: " << snd.getBandwidth() << std::endl;
     }
 
     std::set<int> uniqueNeighbors;
@@ -208,8 +208,8 @@ void Router::updateRoutingTable(bool initialize, int queueSize, std::map<int, Li
         for (int neighbor: uniqueNeighbors) {
             amIEndNode = amIEndNode || AddressUtils::isTerminal(neighbor);
             packageQueuesByNeighbor.emplace(neighbor, boost::circular_buffer<Package *>(queueSize));
-            std::cout << "Router " << routerAddress << " has created queue for neighbor " << neighbor
-                    << " (capacity: " << packageQueuesByNeighbor[neighbor].capacity() << ")" << std::endl;
+            //std::cout << "Router " << routerAddress << " has created queue for neighbor " << neighbor
+            //        << " (capacity: " << packageQueuesByNeighbor[neighbor].capacity() << ")" << std::endl;
         }
     }
 }

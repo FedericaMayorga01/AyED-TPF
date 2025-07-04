@@ -107,23 +107,23 @@ std::map<int, std::map<int, Link>> DijkstraStrategy::computeOptimalPaths(
             if (dest == source) continue;
 
             if (firstHop.count(dest)) {
-                std::cout << "Router " << source << " found path to " << dest << " via first hop " << firstHop[dest] << std::endl;
+                //std::cout << "Router " << source << " found path to " << dest << " via first hop " << firstHop[dest] << std::endl;
                 int nextHop = firstHop[dest];
-                std::cout << "Router " << source << " found nextHop " << nextHop << std::endl;
+                //std::cout << "Router " << source << " found nextHop " << nextHop << std::endl;
 
                 auto routerLinks = linkLookup.find(source);
                 if (routerLinks != linkLookup.end()) {
                     auto linkIt = routerLinks->second.find(nextHop);
                     if (linkIt != routerLinks->second.end()) {
-                        std::cout << "Router " << source << " has links to neighbors: "
-                                  << nextHop << " with bandwidth " << linkIt->second.getBandwidth() << std::endl;
+                        //std::cout << "Router " << source << " has links to neighbors: "
+                        //          << nextHop << " with bandwidth " << linkIt->second.getBandwidth() << std::endl;
                         routingTable[dest] = linkIt->second;
                     }
                 }
             }
         }
         allRoutingTables[source] = routingTable;
-        std::cout << "Router " << source << " has routing table with " << routingTable.size() << " entries." << std::endl;
+        //std::cout << "Router " << source << " has routing table with " << routingTable.size() << " entries." << std::endl;
     }
     return allRoutingTables;
 }

@@ -100,29 +100,31 @@ void NetworkSimulator::initializeNetwork()
         if (AddressUtils::isRouter(nodeConfig.node_address))
         {
             globalTable[nodeConfig.node_address] = std::list<Link>();
-            std::cout << "Found router: " << nodeConfig.node_address << " (Router #"
-                      << AddressUtils::getRouterNumber(nodeConfig.node_address) << ")" << std::endl;
+            //std::cout << "Found router: " << nodeConfig.node_address << " (Router #"
+            //          << AddressUtils::getRouterNumber(nodeConfig.node_address) << ")" << std::endl;
         }
         else if (AddressUtils::isTerminal(nodeConfig.node_address))
         {
             terminalNodes.push_back(nodeConfig);
-            std::cout << "Found terminal: " << nodeConfig.node_address << " (Router #"
-                      << AddressUtils::getRouterNumber(nodeConfig.node_address) << ", Terminal #"
-                      << AddressUtils::getTerminalNumber(nodeConfig.node_address) << ")" << std::endl;
+            //std::cout << "Found terminal: " << nodeConfig.node_address << " (Router #"
+            //          << AddressUtils::getRouterNumber(nodeConfig.node_address) << ", Terminal #"
+            //          << AddressUtils::getTerminalNumber(nodeConfig.node_address) << ")" << std::endl;
         }
         routerAddresses.insert(nodeConfig.node_address);
     }
 
     // Initialize routers
+    std::cout << "Initializing routers..." << std::endl;
     for (int address : routerAddresses)
     {
         Router router(address, config.package_size, this);
         routers.push_back(router);
 
-        std::cout << "Created router with address: " << address << " (Router #"
-                  << AddressUtils::getRouterNumber(address) << ")" << std::endl;
+        //std::cout << "Created router with address: " << address << " (Router #"
+        //          << AddressUtils::getRouterNumber(address) << ")" << std::endl;
     }
 
+    std::cout << "Initializing terminals..." << std::endl;
     // Initialize terminals
     for (const auto& terminalConfig : terminalNodes)
     {
@@ -132,11 +134,10 @@ void NetworkSimulator::initializeNetwork()
         Terminal terminal(terminalAddress, routerAddress, this);
         terminals.push_back(terminal);
 
-        std::cout << "Created terminal " << terminalAddress << " connected to router " << routerAddress << std::endl;
+        //std::cout << "Created terminal " << terminalAddress << " connected to router " << routerAddress << std::endl;
 
     }
 
-    // TODO: see if is possible improve this logic
     for (auto& terminal : terminals)
     {
         for(auto& terminal2: terminals)
@@ -151,6 +152,7 @@ void NetworkSimulator::initializeNetwork()
     }
 
     // Initialize links
+    std::cout << "Initializing links..." << std::endl;
     for (const auto& nodeConfig : config.nodes)
     {
         for (const auto& neighbor : nodeConfig.neighbors)
@@ -158,14 +160,14 @@ void NetworkSimulator::initializeNetwork()
             Link link(nodeConfig.node_address, neighbor.neighbor_address, neighbor.bandwidth);
             links.push_back(link);
 
-            std::cout << "Created link: " << neighbor.neighbor_address << " (bandwidth: " << neighbor.bandwidth << ")"
-                      << std::endl;
+            //std::cout << "Created link: " << neighbor.neighbor_address << " (bandwidth: " << neighbor.bandwidth << ")"
+            //          << std::endl;
         }
     }
 
     std::cout << "Network initialization completed:" << std::endl;
-    std::cout << "  - Routers: " << routers.size() << std::endl;
-    std::cout << "  - Links: " << links.size() << std::endl;
+    std::cout << "  - Routers: " << routers.size() - terminals.size() << std::endl;
+    std::cout << "  - Links: " << links.size()/2 << std::endl;
     std::cout << "  - Terminals: " << terminals.size() << std::endl;
 }
 
@@ -179,13 +181,13 @@ void NetworkSimulator::setupAdministrator()
 
     for (const auto& link : links)
     {
-        std::cout << "Adding link from " << link.getSourceAddress()
-                  << " to neighbor " << link.getNeighbor()
-                  << " with bandwidth " << link.getBandwidth() << std::endl;
+        //std::cout << "Adding link from " << link.getSourceAddress()
+        //          << " to neighbor " << link.getNeighbor()
+        //          << " with bandwidth " << link.getBandwidth() << std::endl;
 
         if (AddressUtils::isRouter(link.getSourceAddress()))
         {
-            std::cout << "GLOBAL_TABLE[ROUTERS]: Adding link to global routing table for node " << link.getSourceAddress() << std::endl;
+            //std::cout << "GLOBAL_TABLE[ROUTERS]: Adding link to global routing table for node " << link.getSourceAddress() << std::endl;
             globalTable[link.getSourceAddress()].push_back(link);
             continue;
         }
@@ -195,11 +197,11 @@ void NetworkSimulator::setupAdministrator()
         }
 
         globalTable[link.getSourceAddress()].push_back(link);
-        std::cout << "GLOBAL_TABLE[TERMINALS]: Adding link to global routing table for terminal " << link.getSourceAddress() << std::endl;
+        //std::cout << "GLOBAL_TABLE[TERMINALS]: Adding link to global routing table for terminal " << link.getSourceAddress() << std::endl;
     }
 
     std::cout << "Administrator initialized with DijkstraStrategy" << std::endl;
-    std::cout << "Global routing table contains " << globalTable.size() << " router entries" << std::endl;
+    std::cout << "Global routing table contains " << globalTable.size() << " entries" << std::endl;
 }
 
 void NetworkSimulator::run()
@@ -208,7 +210,7 @@ void NetworkSimulator::run()
 
     for (int cycle = 1; cycle <= config.total_cycle; cycle++)
     {
-        std::cout << "\n--- Cycle " << cycle << " ---" << std::endl;
+        std::cout << "\n================ <<< Cycle " << cycle << " >>> ================" << std::endl;
 
         if (cycle % 2)
         {
@@ -241,25 +243,25 @@ void NetworkSimulator::run()
             router.processQueues();
         }
 
-        std::cout << "Cycle " << cycle << " completed" << std::endl;
+        std::cout << "############## Cycle " << cycle << " completed ##############" << std::endl;
         updatePendingCurrentCycles();
         incrementCurrentCycle();
     }
 
-    std::cout << "\n=== Simulation Completed ===" << std::endl;
+    std::cout << "\n========= Simulation Completed =========" << std::endl;
 }
 
 void NetworkSimulator::printNetworkInfo() const {
-    std::cout << "\n=== Network Information ===" << std::endl;
-    std::cout << "Total routers: " << routers.size() << std::endl;
+    std::cout << "\n========= Network Information =========" << std::endl;
+    std::cout << "Total routers: " << routers.size() - terminals.size() << std::endl;
     std::cout << "Total links: " << links.size() << std::endl;
     std::cout << "Total terminals: " << terminals.size() << std::endl;
     std::cout << "Total cycles configured: " << config.total_cycle << std::endl;
 
-    std::cout << "\nRouter details:" << std::endl;
-    for (const auto& router : routers)
-    {
-        std::cout << "  Router " << router.getRouterAddress()
-                  << " (End node: " << (router.getAmIEndNode() ? "Yes" : "No") << ")" << std::endl;
-    }
+    //std::cout << "\nRouter details:" << std::endl;
+    //for (const auto& router : routers)
+    //{
+    //    std::cout << "  Router " << router.getRouterAddress()
+    //              << " (End node: " << (router.getAmIEndNode() ? "Yes" : "No") << ")" << std::endl;
+    //}
 }
